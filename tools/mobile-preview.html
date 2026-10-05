@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AINOID · 手机竖屏试玩</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body { background: #131a22; color: #cfe3ea; font: 14px system-ui, sans-serif; }
+    header { height: 64px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+    header small { color: #8fabb9; font-size: 12px; }
+    main { position: absolute; inset: 64px 0 12px; overflow: hidden; }
+    #phone { position: absolute; top: 50%; left: 50%; width: 390px; height: 844px; border-radius: 16px; outline: 3px solid #45576a; overflow: hidden; box-shadow: 0 16px 65px #0009; transform: translate(-50%, -50%) scale(var(--scale, 1)); }
+    iframe { display: block; border: 0; width: 390px; height: 844px; background: #03060a; }
+  </style>
+</head>
+<body>
+  <header><strong>AINOID · 手机竖屏试玩</strong><small>390 × 844 · 鼠标点击、拖拽与滚轮缩放</small></header>
+  <main><div id="phone"><iframe src="../index.html" title="手机竖屏游戏" allow="autoplay; fullscreen"></iframe></div></main>
+  <script>
+    function fitPhone() {
+      // 只缩放外层展示，游戏内部视口始终为 390 × 844。
+      document.documentElement.style.setProperty('--scale', Math.max(.1, Math.min(1, (innerWidth - 32) / 390, (innerHeight - 88) / 844)));
+    }
+    addEventListener('resize', fitPhone);
+    fitPhone();
+  </script>
+</body>
+</html>

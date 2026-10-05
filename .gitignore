@@ -1,0 +1,15 @@
+# Generated releases and local working files
+/dist/
+/.claude/
+/.codex/
+/tools/backups/
+/tools/screenshots/
+node_modules/
+__pycache__/
+*.pyc
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

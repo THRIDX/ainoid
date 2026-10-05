@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AINOID · 浏览器回归检查</title>
+<style>
+  * { box-sizing: border-box; } body { margin: 0; background: #03060a; color: #cfe3ea; font: 12px sans-serif; }
+  header { min-height: 48px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px; }
+  button { padding: 10px; border: 1px solid #48616b; background: #09121a; color: inherit; cursor: pointer; }
+  iframe { display: block; width: 100%; height: calc(100dvh - 80px); border: 0; }
+  #report { white-space: pre-wrap; padding: 8px; } [hidden] { display: none; }
+</style>
+<header>
+  <button id="run">运行界面回归</button><button data-scene="map">地图</button>
+  <button data-scene="super">超事件</button><button data-scene="phase2">终局介绍</button>
+  <button data-scene="panel">设施抽屉</button><span id="status" role="status">测试页，不影响游戏入口</span>
+</header>
+<iframe id="game" src="../index.html" title="游戏测试画面"></iframe>
+<pre id="report" hidden></pre>
+<script>
+const frame = document.querySelector('#game'), status = document.querySelector('#status');
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+async function until(fn, timeout = 6000) {
+  const start = performance.now();
+  while (!fn()) { if (performance.now() - start > timeout) throw Error('等待界面超时'); await wait(50); }
+}
+async function fresh() {
+  await new Promise(resolve => {
+    frame.onload = resolve;
+    frame.src = '../index.html?check=' + Date.now();
+  });
+  await until(() => frame.contentWindow.AINOID?.main?.state === 'title');
+  const w = frame.contentWindow;
+  w.document.querySelector('#t-start').click();
+  await until(() => ['intro', 'game'].includes(w.AINOID.main.state));
+  if (w.AINOID.main.state === 'intro') w.AINOID.screens.introSkip();
+  await until(() => w.AINOID.main.state === 'game');
+  const A = w.AINOID;
+  A.main.tut = null; A.screens.hideCoach(); A.game.reset({origin:'US'});
+  A.cam.flyTo(A.game.originSite.x, A.game.originSite.y, A.cam.minS * 3.2, .01);
+  return A;
+}
+function assert(ok, message) { if (!ok) throw Error(message); }
+let busy = false;
+async function action(fn) {
+  if (busy) return; busy = true;
+  try { await fn(); } catch (e) { status.textContent = 'FAIL: ' + e.message; }
+  finally { busy = false; }
+}
+document.querySelector('#run').onclick = () => action(async () => {
+  status.textContent = '检查中…';
+  const A = await fresh(), G = A.game, E = A.events, d = frame.contentDocument;
+  const checks = [];
+  assert(getComputedStyle(d.querySelector('#fx')).pointerEvents === 'auto', '画布未开启输入');
+  checks.push('画布可交互');
+  A.cam.overview();
+  assert(!A.cam.split && !A.cam.splitAllowed, '地图不应拆成上下两屏');
+  const west = A.cam.toScreen(300, 400), east = A.cam.toScreen(1500, 400);
+  assert(west[0] < east[0] && Math.abs(west[1] - east[1]) < .01, '地图坐标不连续');
+  checks.push('连续单地图总览');
+  E.fire(E.byId('mirror'));
+  assert(G.isPaused(), '事件未暂停计时');
+  const r = d.querySelector('.se-card').getBoundingClientRect();
+  assert(r.width < frame.clientWidth && r.height < frame.clientHeight, '超事件没有保留地图边缘');
+  d.querySelector('.se-btn').click();
+  await until(() => !E.open);
+  assert(!G.isPaused(), '超事件关闭后未恢复'); checks.push('超事件暂停与恢复');
+  G.evo = 100; G.update(.05);
+  await until(() => E.open?.id === 'singularity');
+  d.querySelector('.se-btn').click();
+  await until(() => d.querySelector('.p2-go'));
+  d.querySelector('.p2-go').click();
+  await until(() => G.phase === 2);
+  assert(!G.isPaused(), '阶段切换后残留暂停'); checks.push('奇点→终局介绍→阶段 II');
+  G.compute = 0; E.fire(E.byId('oddLog'));
+  assert(d.querySelectorAll('.ev-opt:disabled').length === 2, '付费选项应不可用');
+  d.querySelector('.ev-card').dispatchEvent(new PointerEvent('pointerdown', {bubbles:true}));
+  d.querySelectorAll('.ev-opt')[2].click();
+  await until(() => !E.open);
+  assert(G.compute >= 0 && !G.isPaused(), '普通事件关闭错误'); checks.push('事件付费校验与免费选项');
+  A.panel.open(G.origin); assert(G.pauses.has('inspect'), '设施未暂停');
+  const t = G.t; G.update(.1); assert(G.t === t, '设施面板内计时仍在走');
+  A.panel.close(); assert(!G.isPaused(), '关闭抽屉未恢复'); checks.push('设施抽屉暂停与恢复');
+  A.U.emit('ui:menu'); await until(() => A.screens.menuOpen);
+  d.querySelector('[data-m="restart"]').click();
+  await until(() => G.phase === 1 && !A.screens.menuOpen);
+  assert(!G.isPaused() && !E.open && A.input.enabled, '重开状态未清理');
+  checks.push('菜单重开'); G.pause('user'); A.hud.setSpeed(0);
+  status.textContent = 'PASS · ' + checks.length + ' 项';
+  const report = document.querySelector('#report'); report.hidden = false; report.textContent = checks.join('\n');
+});
+for (const b of document.querySelectorAll('[data-scene]')) b.onclick = () => action(async () => {
+  status.textContent = '准备场景…'; document.querySelector('#report').hidden = true;
+  const A = await fresh(), G = A.game, E = A.events;
+  if (b.dataset.scene === 'super') E.fire(E.byId('singularity'));
+  else if (b.dataset.scene === 'phase2') { G.pause('transition'); A.eventui.showPhase2Intro(() => { G.startPhase2(); G.resume('transition'); }); }
+  else if (b.dataset.scene === 'panel') { G.compute = 80; A.panel.open(G.origin); }
+  else {
+    A.cam.overview();
+    const o = G.originSite; G.spawnBubble('compute', G.origin, {pos:[o.x - 50, o.y]});
+    G.spawnBubble('reg', G.origin, {pos:[o.x + 50, o.y - 30]});
+    G.pause('user'); A.hud.setSpeed(0);
+  }
+  status.textContent = '场景已就绪';
+});
+</script></html>

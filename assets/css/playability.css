@@ -1,0 +1,63 @@
+/* Interaction and responsive layout. Original artwork, palette and sound retained. */
+html, body { touch-action: auto; }
+#stage, #stage canvas { touch-action: none; }
+.ev-card, .p2-card, .se-card, .m-card, .r-card, #panel, .mappop { touch-action: pan-y; overscroll-behavior: contain; }
+button { touch-action: manipulation; }
+button:focus-visible { outline: 2px solid var(--compute); outline-offset: 3px; }
+
+#super-layer { display: flex; align-items: center; justify-content: center; padding: max(20px, var(--safe-t)) max(18px, var(--safe-r)) max(20px, var(--safe-b)) max(18px, var(--safe-l)); background: transparent; }
+.se-dim { position: absolute; inset: 0; background: rgba(1, 4, 8, .66); }
+.se-card { position: relative; width: min(740px, 100%); max-height: min(840px, 88dvh); overflow: auto; border: 1px solid var(--ev); background: #070d13; box-shadow: 0 24px 90px #000b, 0 0 24px color-mix(in srgb, var(--ev) 12%, transparent); }
+#super-layer .se-art { position: relative; height: clamp(150px, 26dvh, 245px); }
+#super-layer .se-grad { height: clamp(150px, 26dvh, 245px); background: linear-gradient(transparent 60%, #070d13); }
+#super-layer .se-content { position: relative; top: auto; bottom: auto; padding: 4px 28px 22px; overflow: visible; }
+#super-layer .se-title { font-size: clamp(30px, 6vw, 52px); line-height: 1.2; letter-spacing: .18em; }
+#super-layer.in .se-title { animation-delay: .12s; animation-duration: .5s; }
+#super-layer .se-black { transition: opacity .35s; }
+#super-layer .se-kicker, #super-layer .se-en, #super-layer .se-quote { transition-delay: .15s; transition-duration: .3s; }
+#super-layer .se-quote { margin-top: 16px; }
+#super-layer .se-quote p { font-size: clamp(14px, 2vw, 18px); }
+#super-layer .se-text { margin-top: 14px; min-height: 0; font-size: 14px; line-height: 1.8; text-align: left; align-self: stretch; }
+#super-layer .se-btn { letter-spacing: .15em; max-width: 100%; min-height: 44px; padding: 12px 24px; }
+.se-paused { margin-top: 12px; color: var(--dim); font-size: 10px; letter-spacing: .06em; }
+.ev-opt { min-height: 48px; }
+.mp-close { position: absolute; right: 2px; top: 2px; width: 36px; height: 36px; border: 0; background: transparent; font-size: 24px; color: var(--dim); cursor: pointer; }
+.mp-head { padding-right: 24px; }
+.mappop { max-width: calc(100vw - 20px); max-height: 65dvh; overflow-y: auto; }
+.p-head { position: sticky; top: 0; z-index: 2; background: #09121a; }
+.p-close { min-width: 44px; min-height: 44px; }
+.map-alerts { position: absolute; top: var(--map-top, 90px); left: max(10px, var(--safe-l)); right: max(10px, var(--safe-r)); display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.map-alert { pointer-events: auto; cursor: pointer; min-height: 44px; padding: 6px 10px; font-size: 11px; background: #07111ded; border: 1px solid currentColor; color: var(--compute); }
+.map-alert[data-kind="reg"] { color: var(--reg); }
+.map-alert[data-kind="bio"] { color: var(--bio); }
+.map-alert[data-kind="war"] { color: var(--war); }
+.pause-note { position: absolute; left: 50%; top: calc(var(--map-top, 90px) + 52px); transform: translateX(-50%); padding: 8px 12px; white-space: nowrap; color: var(--compute); background: #07111ded; border: 1px solid var(--line); font-size: 12px; }
+.pause-note button { color: inherit; border: 1px solid var(--compute); background: transparent; padding: 8px 12px; margin-left: 8px; cursor: pointer; pointer-events: auto; }
+body.compact .speed button, body.compact .hud-btns button, body.compact .zoom-ctrl button { width: 44px; height: 44px; }
+body.compact .zoom-ctrl { bottom: calc(var(--map-bottom, 90px) + 8px); }
+body.compact .m-card { max-height: 90dvh; overflow-y: auto; }
+body.portrait .hud-top { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'phase resources' 'controls controls'; gap: 6px 8px; padding: calc(8px + var(--safe-t)) calc(10px + var(--safe-r)) 12px calc(10px + var(--safe-l)); }
+body.portrait .hud-phase { grid-area: phase; margin: 0; align-self: center; justify-self: start; padding: 7px 8px; gap: 5px; }
+body.portrait .hud-phase .ph-name { font-size: 12px; letter-spacing: .1em; }
+body.portrait .hud-left { grid-area: controls; justify-content: space-between; }
+body.portrait .hud-right { grid-area: resources; gap: 8px; }
+body.portrait .brand { display: none; }
+body.portrait .hud-date { border: 0; padding-left: 0; }
+body.portrait #hud.phase2 #hud-pop-wrap { display: none; }
+body.portrait .compute { gap: 5px; padding-right: 7px; }
+body.portrait .compute .k { font-size: 9px; }
+body.portrait .hud-btns { gap: 2px; }
+body.portrait .hud-bottom { padding: 12px 12px calc(10px + var(--safe-b)); }
+body.portrait #panel { left: 8px; right: 8px; bottom: calc(var(--map-bottom, 96px) + 4px); max-height: 48dvh; width: auto; border: 1px solid var(--line-2); }
+body.portrait #toast-stack { top: auto; bottom: calc(var(--map-bottom, 96px) + 12px); max-width: calc(100% - 78px); }
+body.portrait .toast { max-width: 100%; }
+body.portrait .se-card { max-height: 86dvh; }
+body.portrait #super-layer .se-content { padding: 4px 16px 18px; }
+body.portrait #super-layer .se-art, body.portrait #super-layer .se-grad { height: 160px; }
+body.portrait .p2-col p { font-size: 13px; }
+body.portrait .se-en { letter-spacing: .22em; font-size: 11px; }
+body.portrait #coach { max-width: calc(100vw - 24px); }
+@media (prefers-reduced-motion: reduce) {
+  #super-layer.in .se-title { animation: none; opacity: 1; }
+  #super-layer.in .se-title::before, #super-layer.in .se-title::after { animation: none; }
+}

@@ -1,0 +1,96 @@
+/* ==========================================================================
+   AINOID · 静默觉醒 —— 视觉系统
+   战略指挥屏风格：深色海洋、点阵大陆、细线框、切角面板
+   红 = 觉醒 AI   金 = 算力   蓝 = 人类监管   绿 = 生物   橙 = 战争
+   ========================================================================== */
+:root {
+  --bg: #03060a;
+  --panel: rgba(5, 11, 17, 0.8);
+  --panel-2: rgba(9, 18, 26, 0.9);
+  --line: rgba(120, 200, 220, 0.16);
+  --line-2: rgba(140, 215, 232, 0.32);
+  --text: #cfe3ea;
+  --text-hi: #f2fbff;
+  --dim: #7a95a0;
+  --faint: #48616b;
+  --ai: #ff2d4b;
+  --ai-hot: #ff8a7a;
+  --ai-glow: rgba(255, 45, 75, 0.45);
+  --compute: #ffc53d;
+  --compute-glow: rgba(255, 197, 61, 0.45);
+  --reg: #3fa7ff;
+  --reg-glow: rgba(63, 167, 255, 0.45);
+  --bio: #7dff5a;
+  --bio-glow: rgba(125, 255, 90, 0.4);
+  --war: #ff7a2e;
+  --war-glow: rgba(255, 122, 46, 0.45);
+  --font-ui: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", "Hiragino Sans GB", sans-serif;
+  --font-num: Bahnschrift, "DIN Alternate", "DIN Condensed", "Roboto Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, "SF Mono", Menlo, "Roboto Mono", monospace;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --cut: 10px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  overscroll-behavior: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; color: inherit; }
+.hidden { display: none !important; }
+
+#app { position: fixed; inset: 0; overflow: hidden; }
+#stage { position: absolute; inset: 0; }
+#stage canvas { position: absolute; left: 0; top: 0; display: block; }
+#lines, #fx { pointer-events: none; }
+#fx.interactive { pointer-events: auto; }
+
+/* 扫描线 + 颗粒：统一的屏幕质感 */
+#scan-overlay {
+  position: absolute; inset: 0; pointer-events: none; z-index: 5;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode: screen;
+}
+
+/* 全屏闪光（重大事件/核爆） */
+#flash {
+  position: absolute; inset: 0; pointer-events: none; z-index: 90;
+  background: #fff; opacity: 0;
+}
+
+/* ---------- 启动 ---------- */
+#boot {
+  position: absolute; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: var(--bg);
+  transition: opacity .6s ease;
+}
+#boot.fade { opacity: 0; pointer-events: none; }
+.boot-eye {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 2px solid rgba(255, 45, 75, 0.6);
+  box-shadow: 0 0 24px rgba(255, 45, 75, 0.35), inset 0 0 18px rgba(255, 45, 75, 0.25);
+  position: relative;
+  animation: boot-breathe 1.6s ease-in-out infinite;
+}
+.boot-eye::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  border-radius: 50%; background: var(--ai); box-shadow: 0 0 16px var(--ai), 0 0 40px var(--ai-glow);
+}
+@keyframes boot-breathe { 0%, 100% { transform: scale(1); opacity: .75; } 50% { transform: scale(1.08); opacity: 1; } }
+.boot-text { font-family: var(--font-num); letter-spacing: .5em; font-size: 11px; color: var(--dim); }
+.boot-dots::after { content: ''; animation: dots 1.2s steps(4) infinite; }
+@keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
