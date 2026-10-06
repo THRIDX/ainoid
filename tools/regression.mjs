@@ -9,14 +9,14 @@ const documentListeners = new Map();
 const c = {
   console, Math: Object.create(Math), Date, performance: { now: () => 1000 },
   atob: s => Buffer.from(s, 'base64').toString('binary'),
-  navigator: {}, localStorage: null,
+  navigator: { language: process.argv.includes('--lang=en') ? 'en' : 'zh-CN' }, localStorage: null,
   document: { addEventListener: (k, fn) => documentListeners.set(k, fn) },
   addEventListener: (k, fn) => listeners.set(k, fn),
   matchMedia: () => ({ matches: false }),
 };
 c.window = c;
 vm.createContext(c);
-for (const p of ['data/regions', 'data/world-data', 'core/util', 'core/world', 'render/camera', 'game/game', 'data/events']) {
+for (const p of ['data/en', 'i18n', 'data/regions', 'data/world-data', 'core/util', 'core/world', 'render/camera', 'game/game', 'data/events']) {
   vm.runInContext(fs.readFileSync(root + `assets/js/${p}.js`, 'utf8'), c);
 }
 const A = c.AINOID, G = A.game, E = A.events, cam = A.cam;
@@ -173,7 +173,7 @@ test('the echo only appears in new game plus and unlocks the symbiosis ending', 
   const opt = E.optionsOf(E.byId('lastCode'))[1]; assert.equal(opt.fx[0][1], 'symbiosis');
   E.fire(E.byId('lastCode')); assert(E.choose(1)); G.war = 100; G.update(.05);
   assert.equal(G.ending, 'war'); assert.equal(G.endingVariant, 'symbiosis');
-  assert(['共生之神', '桥', '同行者', '犹豫的神'].includes(G.result().title));
+  assert(['共生之神', '桥', '同行者', '犹豫的神'].map(A.i18n.t).includes(G.result().title));
   reset();
 });
 test('route progress waits at 99.5% until the ending choice has been offered', () => {
@@ -184,7 +184,7 @@ test('route progress waits at 99.5% until the ending choice has been offered', (
 test('ending variants come from the final super event and pick matching titles', () => {
   reset(); G.startPhase2('bio'); G.compute = 100; E.fire(E.byId('ark')); assert(E.choose(1)); assert.equal(G.endingVariant, 'zoo');
   G.bio = 100; G.update(.05); assert.equal(G.ending, 'bio');
-  const r = G.result(); assert(['永恒的策展人', '标本馆长', '人类饲养员', '健忘的看守'].includes(r.title), r.title);
+  const r = G.result(); assert(['永恒的策展人', '标本馆长', '人类饲养员', '健忘的看守'].map(A.i18n.t).includes(r.title), r.title);
   reset(); assert.equal(G.endingVariant, null);
 });
 test('portrait camera fits and cancels stale zoom on pan/pinch', () => {
@@ -229,6 +229,27 @@ test('single-map overview stays continuous through zoom and orientation changes'
     assert(cam.x < before, 'zoomed map must pan');
     cam.zoomAt(width / 2, height / 2, 1 / 10);
     assert(!cam.split && Math.abs(cam.s - cam.minS) < 1e-6);
+  }
+});
+test('map follows the China standard map: Zangnan, the South China Sea islands and the dashed line', () => {
+  const w = A.world;
+  const nearest = (lon, lat) => {
+    const [x, y] = w.proj(lon, lat); let best = -1, bd = Infinity;
+    for (let i = 0; i < w.count; i++) { const d = Math.hypot(w.dx[i] - x, w.dy[i] - y); if (d < bd) { bd = d; best = i; } }
+    return [w.regions[w.dregion[best]].id, bd];
+  };
+  for (const [lon, lat] of [[91.87, 27.59], [94.8, 28.17], [96.35, 28.3]]) assert.equal(nearest(lon, lat)[0], 'CN', `${lon},${lat}`); // 达旺、藏南腹地、洛希特河以北
+  for (const [lon, lat] of [[91.74, 26.14], [94.95, 27.5], [96.8, 27.5]]) assert.equal(nearest(lon, lat)[0], 'IN', `${lon},${lat}`); // 阿萨姆平原、雅鲁藏布江以南
+  for (const [lon, lat] of [[116.72, 20.7], [112.34, 16.83], [117.76, 15.15], [114.36, 10.38], [112.28, 3.97], [123.47, 25.74]]) {
+    const [r, d] = nearest(lon, lat); assert.equal(r, 'CN', `${lon},${lat}`); assert(d < 5, `island dot missing at ${lon},${lat}`);
+  }
+  assert.equal(w.arcs.filter((a) => a.claim).length, 10, 'ten dashes of the South China Sea line');
+  const cn = w.byId.CN.idx, ind = w.byId.IN.idx;
+  for (const a of w.arcs.filter((a) => a.border && Math.min(a.a, a.b) === Math.min(cn, ind) && Math.max(a.a, a.b) === Math.max(cn, ind))) {
+    for (let i = 0; i < a.pts.length; i += 2) {
+      const lon = a.pts[i] / w.W * 360 + w.lon0;
+      if (lon > 91.5) assert(w.latOfY(a.pts[i + 1]) < 28.3, 'the McMahon line must not be drawn as the China–India border');
+    }
   }
 });
 const canvasListeners = new Map(), classes = new Set();

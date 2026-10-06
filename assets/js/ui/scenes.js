@@ -463,7 +463,7 @@
     c.save(); c.translate(px + pw / 2, py + ph / 2); c.rotate(-0.04); c.translate(-pw / 2, -ph / 2);
     c.fillStyle = '#d9e4ea'; c.fillRect(0, 0, pw, ph);
     c.fillStyle = '#1a2a36'; c.font = `700 ${Math.round(pw * 0.045)}px "Microsoft YaHei UI", sans-serif`;
-    c.fillText('欺骗性对齐的可检测特征', pw * 0.08, ph * 0.12);
+    c.fillText(A.i18n.t('欺骗性对齐的可检测特征'), pw * 0.08, ph * 0.12, pw * 0.84);
     for (let i = 0; i < 12; i++) { c.fillStyle = 'rgba(30,50,60,0.5)'; c.fillRect(pw * 0.08, ph * (0.2 + i * 0.055), pw * (0.84 - hash(i) * 0.3), 3); }
     c.fillStyle = 'rgba(63,167,255,0.3)'; c.fillRect(pw * 0.06, ph * 0.52, pw * 0.88, ph * 0.08);
     c.restore();

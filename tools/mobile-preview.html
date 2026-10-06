@@ -25,6 +25,8 @@
     }
     addEventListener('resize', fitPhone);
     fitPhone();
+    // 网址参数原样传给游戏，例如 mobile-preview.html?director 打开竖屏导演模式
+    if (location.search) document.querySelector('iframe').src = '../index.html' + location.search;
   </script>
 </body>
 </html>

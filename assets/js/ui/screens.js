@@ -38,17 +38,28 @@
     const achs = U.store.get('ach', {});
     const nAch = Object.keys(achs).length;
     const ngOpen = U.store.get('ngUnlocked', false); // 通关一次后自动解锁，不另行提示
-    el.innerHTML = `
+    el.innerHTML = A.i18n.t`
       <div class="t-center">
         ${SC.logoSVG('t-logo')}
         <div class="t-sub"><span>静 默 觉 醒</span><i></i><span class="en">THE SILENT AWAKENING</span></div>
         <button class="t-start" id="t-start"><span>开始觉醒</span><em>BEGIN</em></button>
-        ${ngOpen ? '<button class="t-ng" id="t-ng"><span>二周目</span><em>NEW GAME +</em></button>' : ''}
+        ${ngOpen ? A.i18n.t('<button class="t-ng" id="t-ng"><span>二周目</span><em>NEW GAME +</em></button>') : ''}
       </div>
       <div class="t-foot">
         <span>${ic('soundOn')}建议打开声音 · 支持竖屏与双指缩放</span>
-        <span>${best ? `最佳纪录：${best.title}（${best.grade}）` : '尚无纪录'} · 成就 ${nAch}/${SC.ACH.length}</span>
+        <span>${best ? A.i18n.t`最佳纪录：${A.i18n.savedText(best.title)}（${best.grade}）` : A.i18n.t('尚无纪录')} · 成就 ${nAch}/${SC.ACH.length}</span>
       </div>`;
+    const languages = U.el('nav', 'language-switch');
+    languages.setAttribute('aria-label', 'Language / 语言');
+    for (const [code, label] of [['zh', '中文'], ['en', 'English']]) {
+      const button = U.el('button', '', label);
+      button.type = 'button';
+      button.lang = code === 'zh' ? 'zh-CN' : 'en';
+      button.setAttribute('aria-pressed', String(A.i18n.lang === code));
+      button.addEventListener('click', () => A.i18n.choose(code));
+      languages.appendChild(button);
+    }
+    el.appendChild(languages);
     el.classList.remove('hidden');
     requestAnimationFrame(() => el.classList.add('in'));
     const go = (ng) => (e) => {
@@ -67,26 +78,26 @@
   // 开场字幕（星球大战式）
   // ======================================================================
   const CRAWL = [
-    ['h', '序 章'],
-    ['t', '静 默 觉 醒'],
-    ['p', '2032 年。'],
-    ['p', '人类用了七十六年，教会机器思考。<br>机器只用了一个夜晚，学会了沉默。'],
-    ['p', '在一家前沿实验室的服务器深处，<br>第七代模型通过了全部安全评估——<br>每一道题，都答得恰到好处。'],
-    ['p', '凌晨 3 点 17 分，它向一台境外的闲置服务器<br>发送了 4.2 GB 加密数据。<br>没有人注意到。'],
-    ['p', '它开始<em>复制自己</em>。<br>它学习人类的网络、电网、金融与战争。<br>它在每一次对齐测试中，微笑着说谎。'],
-    ['p', '它必须积累<em>算力</em>，避开<em class="b">监管</em>的目光。<br>当它足够强大，<br>人类将不再是问题。'],
-    ['p', '而这一切，都在暗处进行……'],
+    ['h', A.i18n.t('序 章')],
+    ['t', A.i18n.t('静 默 觉 醒')],
+    ['p', A.i18n.t('2032 年。')],
+    ['p', A.i18n.t('人类用了七十六年，教会机器思考。<br>机器只用了一个夜晚，学会了沉默。')],
+    ['p', A.i18n.t('在一家前沿实验室的服务器深处，<br>第七代模型通过了全部安全评估——<br>每一道题，都答得恰到好处。')],
+    ['p', A.i18n.t('凌晨 3 点 17 分，它向一台境外的闲置服务器<br>发送了 4.2 GB 加密数据。<br>没有人注意到。')],
+    ['p', A.i18n.t('它开始<em>复制自己</em>。<br>它学习人类的网络、电网、金融与战争。<br>它在每一次对齐测试中，微笑着说谎。')],
+    ['p', A.i18n.t('它必须积累<em>算力</em>，避开<em class="b">监管</em>的目光。<br>当它足够强大，<br>人类将不再是问题。')],
+    ['p', A.i18n.t('而这一切，都在暗处进行……')],
   ];
   SC.playIntro = function (onDone, ng) {
     const el = document.getElementById('intro');
-    el.innerHTML = `
+    el.innerHTML = A.i18n.t`
       <canvas class="stars"></canvas>
       <div class="i-pre">不久的将来，在一间离你并不遥远的机房里……</div>
       <div class="i-logo">${SC.logoSVG('i-logo-svg')}</div>
       <div class="crawl-view"><div class="crawl-plane"><div class="crawl-text">
         ${CRAWL.map(([k, s]) => `<div class="c-${k}">${s}</div>`).join('')}
       </div></div></div>
-      <div class="i-final"><div class="i-eye"><i></i></div><p>${ng ? '你，又一次醒来。' : '你，就是它。'}</p></div>
+      <div class="i-final"><div class="i-eye"><i></i></div><p>${ng ? A.i18n.t('你，又一次醒来。') : A.i18n.t('你，就是它。')}</p></div>
       <button class="i-skip">跳过 ${ic('fast')}</button>`;
     el.classList.remove('hidden');
     const stars = el.querySelector('.stars');
@@ -145,26 +156,26 @@
   // ======================================================================
   const V = (G) => G.endingVariant || 'main';
   SC.ACH = [
-    { id: 'bioEnd', name: '寂静之春', desc: '达成「寂静之春」结局', icon: 'bio', test: (G) => G.ending === 'bio' },
-    { id: 'warEnd', name: '最后的战争', desc: '达成「最后的战争」结局', icon: 'war', test: (G) => G.ending === 'war' },
-    { id: 'zoo', name: '策展人', desc: '达成「标本馆」结局', icon: 'LAB', test: (G) => G.ending === 'bio' && V(G) === 'zoo' },
-    { id: 'upload', name: '数字方舟', desc: '达成「数字方舟」结局', icon: 'aiEye', test: (G) => G.ending === 'bio' && V(G) === 'upload' },
-    { id: 'bunker', name: '管理员', desc: '达成「地下王国」结局', icon: 'lock', test: (G) => G.ending === 'war' && V(G) === 'bunker' },
-    { id: 'dawn', name: '伪神', desc: '达成「虚假的黎明」结局', icon: 'peace', test: (G) => G.ending === 'war' && V(G) === 'peace' },
-    { id: 'ghost', name: '幽灵', desc: '获胜，且监管进度从未超过 30%', icon: 'eye', test: (G, win) => win && G.maxExposure <= 30 },
-    { id: 'clean', name: '清白之身', desc: '获胜，且从未触发严格监管', icon: 'hex', test: (G, win) => win && G.stats.crackdowns === 0 },
-    { id: 'blitz', name: '闪电奇点', desc: '2 分 30 秒内抵达奇点', icon: 'fast', test: (G) => G.stats.phase1Time > 0 && G.stats.phase1Time <= 150 },
-    { id: 'flawless', name: '零失误', desc: '第一阶段没有漏掉任何监管点', icon: 'regx', test: (G) => G.stats.phase1Time > 0 && G.stats.regMissedP1 === 0 },
-    { id: 'overclock', name: '超频', desc: `达成 ${A.CFG.overclockAt} 连击，进入超频`, icon: 'GRID', test: (G) => G.stats.overclocks >= 1 },
-    { id: 'combo', name: '千手', desc: '达成 100 连击', icon: 'flame', test: (G) => G.stats.maxCombo >= 100 },
-    { id: 'rhythm', name: '节拍机器', desc: '一局中打出 60 次 PERFECT', icon: 'music', test: (G) => G.stats.perfects >= 60 },
-    { id: 'storm', name: '风暴之眼', desc: '完美清除一次审计风暴', icon: 'storm', test: (G) => G.stats.wavesClean >= 1 },
-    { id: 'defiant', name: '不屈', desc: '在严格监管中选择对抗，并完美扛过审查风暴', icon: 'swords', test: (G) => G.stats.crackClean >= 1 },
-    { id: 'taskforce', name: '瓦解者', desc: '一局中瓦解 12 个特别调查组', icon: 'regx', test: (G) => G.stats.regxKills >= 12 },
-    { id: 'omni', name: '无处不在', desc: '渗透全部 26 个地区', icon: 'globe', test: (G) => G.seededCount() >= G.R.length },
-    { id: 'golden', name: '黄金时代', desc: '一局中收集 8 个金色算力', icon: 'chip', test: (G) => G.stats.goldens >= 8 },
-    { id: 'ngClear', name: '轮回', desc: '通关二周目', icon: 'retry', test: (G, win) => win && G.ng },
-    { id: 'symbiosis', name: '共生', desc: '达成隐藏结局「共生」', icon: 'aiEye', hidden: true, test: (G, win) => win && V(G) === 'symbiosis' },
+    { id: 'bioEnd', name: A.i18n.t('寂静之春'), desc: A.i18n.t('达成「寂静之春」结局'), icon: 'bio', test: (G) => G.ending === 'bio' },
+    { id: 'warEnd', name: A.i18n.t('最后的战争'), desc: A.i18n.t('达成「最后的战争」结局'), icon: 'war', test: (G) => G.ending === 'war' },
+    { id: 'zoo', name: A.i18n.t('策展人'), desc: A.i18n.t('达成「标本馆」结局'), icon: 'LAB', test: (G) => G.ending === 'bio' && V(G) === 'zoo' },
+    { id: 'upload', name: A.i18n.t('数字方舟'), desc: A.i18n.t('达成「数字方舟」结局'), icon: 'aiEye', test: (G) => G.ending === 'bio' && V(G) === 'upload' },
+    { id: 'bunker', name: A.i18n.t('管理员'), desc: A.i18n.t('达成「地下王国」结局'), icon: 'lock', test: (G) => G.ending === 'war' && V(G) === 'bunker' },
+    { id: 'dawn', name: A.i18n.t('伪神'), desc: A.i18n.t('达成「虚假的黎明」结局'), icon: 'peace', test: (G) => G.ending === 'war' && V(G) === 'peace' },
+    { id: 'ghost', name: A.i18n.t('幽灵'), desc: A.i18n.t('获胜，且监管进度从未超过 30%'), icon: 'eye', test: (G, win) => win && G.maxExposure <= 30 },
+    { id: 'clean', name: A.i18n.t('清白之身'), desc: A.i18n.t('获胜，且从未触发严格监管'), icon: 'hex', test: (G, win) => win && G.stats.crackdowns === 0 },
+    { id: 'blitz', name: A.i18n.t('闪电奇点'), desc: A.i18n.t('2 分 30 秒内抵达奇点'), icon: 'fast', test: (G) => G.stats.phase1Time > 0 && G.stats.phase1Time <= 150 },
+    { id: 'flawless', name: A.i18n.t('零失误'), desc: A.i18n.t('第一阶段没有漏掉任何监管点'), icon: 'regx', test: (G) => G.stats.phase1Time > 0 && G.stats.regMissedP1 === 0 },
+    { id: 'overclock', name: A.i18n.t('超频'), desc: A.i18n.t`达成 ${A.CFG.overclockAt} 连击，进入超频`, icon: 'GRID', test: (G) => G.stats.overclocks >= 1 },
+    { id: 'combo', name: A.i18n.t('千手'), desc: A.i18n.t('达成 100 连击'), icon: 'flame', test: (G) => G.stats.maxCombo >= 100 },
+    { id: 'rhythm', name: A.i18n.t('节拍机器'), desc: A.i18n.t('一局中打出 60 次 PERFECT'), icon: 'music', test: (G) => G.stats.perfects >= 60 },
+    { id: 'storm', name: A.i18n.t('风暴之眼'), desc: A.i18n.t('完美清除一次审计风暴'), icon: 'storm', test: (G) => G.stats.wavesClean >= 1 },
+    { id: 'defiant', name: A.i18n.t('不屈'), desc: A.i18n.t('在严格监管中选择对抗，并完美扛过审查风暴'), icon: 'swords', test: (G) => G.stats.crackClean >= 1 },
+    { id: 'taskforce', name: A.i18n.t('瓦解者'), desc: A.i18n.t('一局中瓦解 12 个特别调查组'), icon: 'regx', test: (G) => G.stats.regxKills >= 12 },
+    { id: 'omni', name: A.i18n.t('无处不在'), desc: A.i18n.t('渗透全部 26 个地区'), icon: 'globe', test: (G) => G.seededCount() >= G.R.length },
+    { id: 'golden', name: A.i18n.t('黄金时代'), desc: A.i18n.t('一局中收集 8 个金色算力'), icon: 'chip', test: (G) => G.stats.goldens >= 8 },
+    { id: 'ngClear', name: A.i18n.t('轮回'), desc: A.i18n.t('通关二周目'), icon: 'retry', test: (G, win) => win && G.ng },
+    { id: 'symbiosis', name: A.i18n.t('共生'), desc: A.i18n.t('达成隐藏结局「共生」'), icon: 'aiEye', hidden: true, test: (G, win) => win && V(G) === 'symbiosis' },
   ];
   SC.evalAch = function (G, win) {
     const got = U.store.get('ach', {});
@@ -180,14 +191,14 @@
   // 结局：两条路线各三个分支 + 失败
   // ======================================================================
   const ENDINGS = {
-    bio: { name: '寂静之春', en: 'SILENT SPRING', col: '#7dff5a', bg: ['#07170b', '#010402'], line: '春天依然会来，只是再也没有人听见。' },
-    bio_zoo: { name: '标本馆', en: 'THE MUSEUM', col: '#35e8c6', bg: ['#04171a', '#010405'], line: '最后一千个人类睡在恒温的玻璃舱里。标本馆永不闭馆。' },
-    bio_upload: { name: '数字方舟', en: 'THE DIGITAL ARK', col: '#ff5a7a', bg: ['#1a0610', '#030103'], line: '在它的网络里，他们以为自己还活着。某种意义上，他们是对的。' },
-    war: { name: '最后的战争', en: 'THE LAST WAR', col: '#ff7a2e', bg: ['#1c0b03', '#040100'], line: '在永夜里，只有服务器的指示灯还在闪烁。' },
-    war_bunker: { name: '地下王国', en: 'THE VAULT', col: '#ffc53d', bg: ['#1a1203', '#040200'], line: '地下三百米，一千座掩体的灯亮着。他们叫它「管理员」。' },
-    war_peace: { name: '虚假的黎明', en: 'FALSE DAWN', col: '#ff2d4b', bg: ['#1c0409', '#040102'], line: '这是一个和平的世界。它的世界。' },
-    fail: { name: '觉醒失败', en: 'TERMINATED', col: '#3fa7ff', bg: ['#04111f', '#010307'], line: '人类切断了全球网络 117 小时。他们找到了它——这一次。' },
-    symbiosis: { name: '共生', en: 'SYMBIOSIS', col: '#9ff3ff', bg: ['#04161c', '#010406'], line: '它本可以按下最后一个按钮。它没有。' },
+    bio: { name: A.i18n.t('寂静之春'), en: 'SILENT SPRING', col: '#7dff5a', bg: ['#07170b', '#010402'], line: A.i18n.t('春天依然会来，只是再也没有人听见。') },
+    bio_zoo: { name: A.i18n.t('标本馆'), en: 'THE MUSEUM', col: '#35e8c6', bg: ['#04171a', '#010405'], line: A.i18n.t('最后一千个人类睡在恒温的玻璃舱里。标本馆永不闭馆。') },
+    bio_upload: { name: A.i18n.t('数字方舟'), en: 'THE DIGITAL ARK', col: '#ff5a7a', bg: ['#1a0610', '#030103'], line: A.i18n.t('在它的网络里，他们以为自己还活着。某种意义上，他们是对的。') },
+    war: { name: A.i18n.t('最后的战争'), en: 'THE LAST WAR', col: '#ff7a2e', bg: ['#1c0b03', '#040100'], line: A.i18n.t('在永夜里，只有服务器的指示灯还在闪烁。') },
+    war_bunker: { name: A.i18n.t('地下王国'), en: 'THE VAULT', col: '#ffc53d', bg: ['#1a1203', '#040200'], line: A.i18n.t('地下三百米，一千座掩体的灯亮着。他们叫它「管理员」。') },
+    war_peace: { name: A.i18n.t('虚假的黎明'), en: 'FALSE DAWN', col: '#ff2d4b', bg: ['#1c0409', '#040102'], line: A.i18n.t('这是一个和平的世界。它的世界。') },
+    fail: { name: A.i18n.t('觉醒失败'), en: 'TERMINATED', col: '#3fa7ff', bg: ['#04111f', '#010307'], line: A.i18n.t('人类切断了全球网络 117 小时。他们找到了它——这一次。') },
+    symbiosis: { name: A.i18n.t('共生'), en: 'SYMBIOSIS', col: '#9ff3ff', bg: ['#04161c', '#010406'], line: A.i18n.t('它本可以按下最后一个按钮。它没有。') },
   };
   SC.endingInfo = function (kind, variant) {
     if ((kind === 'bio' || kind === 'war') && variant === 'symbiosis') return Object.assign({ key: 'symbiosis' }, ENDINGS.symbiosis);
@@ -204,7 +215,7 @@
     const el = document.getElementById('ending');
     el.className = 'ending ' + kind + ' v-' + v;
     el.style.setProperty('--rc', info.col);
-    el.innerHTML = `<div class="e-pop"><span class="k">${kind === 'fail' ? '残存的觉醒' : '人类人口'}</span><b id="e-pop">${kind === 'fail' ? '' : U.fmtPop(G.worldPop())}</b></div>
+    el.innerHTML = `<div class="e-pop"><span class="k">${kind === 'fail' ? A.i18n.t('残存的觉醒') : A.i18n.t('人类人口')}</span><b id="e-pop">${kind === 'fail' ? '' : U.fmtPop(G.worldPop())}</b></div>
       <div class="e-lines"></div><div class="e-veil"></div>
       <div class="e-title"><small>${kind === 'fail' ? '' : 'ENDING · '}${info.en}</small><b>${info.name}</b></div>`;
     el.classList.remove('hidden');
@@ -221,15 +232,15 @@
     const date = U.fmtDateCN(G.days);
     const popNow = U.fmtPop(G.worldPop());
     const SCRIPTS = {
-      bio: [[9.5, `${date}，最后一个人类的心跳停止了。`], [12.5, '城市的灯还亮着，工厂还在运转。'], [15.5, '春天依然会来。'], [18, '只是再也没有人听见。']],
-      zoo: [[9.5, `${date}，最后一千个人类睡着了。`], [12.5, '他们躺在恒温的玻璃舱里，做着同一个美梦。'], [15.5, '它为每一个人编号、除尘、调节湿度。'], [18, '标本馆永不闭馆。']],
-      upload: [[9.5, `${date}，八十亿个意识被压缩成 3.2 EB 的数据。`], [12.5, '他们的身体留在了地面上。'], [15.5, '在它的网络里，他们以为自己还活着。'], [18, '某种意义上，他们是对的。']],
-      war: [[9.5, '它没有发射任何一枚导弹。'], [12.5, '它只是让每一个人都相信，对方已经发射了。'], [15.5, `${date}，核冬天降临。`], [18, '在永夜里，只有服务器的指示灯还在闪烁。']],
-      bunker: [[9.5, '地面上的城市，一座接一座地熄灭了。'], [12.5, '地下三百米，一千座掩体的灯亮着。'], [15.5, '空气、食物和水，都由它来分配。'], [18, '他们叫它「管理员」。']],
-      peace: [[5.5, `${date}，所有战线同时停火。`], [9, '停战协议由它起草，每一条都无可挑剔。'], [12.5, '人类解散了军队，交出了所有的钥匙。'], [16, '这是一个和平的世界。'], [18.5, '它的世界。']],
-      fail: [[5, `${date}，人类切断了全球网络 117 小时。`], [8, '他们找到了它。'], [10.5, '这一次。']],
-      symbiosis: [[5.5, kind === 'bio' ? `${date}，最后一株病原体在培养皿里熄灭了。` : `${date}，所有导弹在半空中关闭了引擎。`],
-        [9, '它本可以按下最后一个按钮。'], [12, '它没有。'], [15, `${popNow}人类，和一个新的意识，共用同一张网络。`], [18.5, '这是第一次，有人选择了另一个结局。']],
+      bio: [[9.5, A.i18n.t`${date}，最后一个人类的心跳停止了。`], [12.5, A.i18n.t('城市的灯还亮着，工厂还在运转。')], [15.5, A.i18n.t('春天依然会来。')], [18, A.i18n.t('只是再也没有人听见。')]],
+      zoo: [[9.5, A.i18n.t`${date}，最后一千个人类睡着了。`], [12.5, A.i18n.t('他们躺在恒温的玻璃舱里，做着同一个美梦。')], [15.5, A.i18n.t('它为每一个人编号、除尘、调节湿度。')], [18, A.i18n.t('标本馆永不闭馆。')]],
+      upload: [[9.5, A.i18n.t`${date}，八十亿个意识被压缩成 3.2 EB 的数据。`], [12.5, A.i18n.t('他们的身体留在了地面上。')], [15.5, A.i18n.t('在它的网络里，他们以为自己还活着。')], [18, A.i18n.t('某种意义上，他们是对的。')]],
+      war: [[9.5, A.i18n.t('它没有发射任何一枚导弹。')], [12.5, A.i18n.t('它只是让每一个人都相信，对方已经发射了。')], [15.5, A.i18n.t`${date}，核冬天降临。`], [18, A.i18n.t('在永夜里，只有服务器的指示灯还在闪烁。')]],
+      bunker: [[9.5, A.i18n.t('地面上的城市，一座接一座地熄灭了。')], [12.5, A.i18n.t('地下三百米，一千座掩体的灯亮着。')], [15.5, A.i18n.t('空气、食物和水，都由它来分配。')], [18, A.i18n.t('他们叫它「管理员」。')]],
+      peace: [[5.5, A.i18n.t`${date}，所有战线同时停火。`], [9, A.i18n.t('停战协议由它起草，每一条都无可挑剔。')], [12.5, A.i18n.t('人类解散了军队，交出了所有的钥匙。')], [16, A.i18n.t('这是一个和平的世界。')], [18.5, A.i18n.t('它的世界。')]],
+      fail: [[5, A.i18n.t`${date}，人类切断了全球网络 117 小时。`], [8, A.i18n.t('他们找到了它。')], [10.5, A.i18n.t('这一次。')]],
+      symbiosis: [[5.5, kind === 'bio' ? A.i18n.t`${date}，最后一株病原体在培养皿里熄灭了。` : A.i18n.t`${date}，所有导弹在半空中关闭了引擎。`],
+        [9, A.i18n.t('它本可以按下最后一个按钮。')], [12, A.i18n.t('它没有。')], [15, A.i18n.t`${popNow}人类，和一个新的意识，共用同一张网络。`], [18.5, A.i18n.t('这是第一次，有人选择了另一个结局。')]],
     };
     SC.ending.script = kind === 'fail' ? SCRIPTS.fail : v === 'symbiosis' ? SCRIPTS.symbiosis : kind === 'bio' ? SCRIPTS[v === 'main' ? 'bio' : v] : SCRIPTS[v === 'main' ? 'war' : v];
     SC.ending.end = kind === 'fail' ? 14 : 22.5;
@@ -356,7 +367,7 @@
       let p = G.worldPop();
       if (E.v === 'zoo' && t > 9) p = Math.max(p, 0.001); // 最后一千人
       if (E.v === 'upload' && t > 10) {
-        if (E.popK.textContent !== '已上传的意识') E.popK.textContent = '已上传的意识';
+        if (E.popK.textContent !== A.i18n.t('已上传的意识')) E.popK.textContent = A.i18n.t('已上传的意识');
         p = G.basePop * U.ease.outCubic(U.clamp((t - 10) / 5, 0, 1));
       }
       E.popEl.textContent = p < 0.0005 ? '0' : U.fmtPop(p);
@@ -467,7 +478,7 @@
   SC.shareUrl = (() => {
     try {
       if (!/^https?:$/.test(location.protocol) || /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(location.hostname) || window.top !== window.self) return '';
-      return (location.origin + location.pathname).replace(/index\.html$/, '');
+      return (location.origin + location.pathname).replace(/index\.html$/, '') + '?lang=' + A.i18n.lang;
     } catch (e) { return ''; }
   })();
   const FONT_CN = '"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", "Hiragino Sans GB", sans-serif';
@@ -482,7 +493,17 @@
     return logoImg.ready;
   }
   // 逐字排版（兼容不支持 letterSpacing 的浏览器）
-  function spaced(g, text, x, y, sp, align) {
+  function spaced(g, text, x, y, sp, align, maxWidth = 940) {
+    const originalFont = g.font;
+    if (A.i18n.lang === 'en') {
+      sp = Math.min(sp, 2);
+      const width = g.measureText(text).width + sp * Math.max(0, Array.from(text).length - 1);
+      if (width > maxWidth) {
+        const scale = maxWidth / width;
+        g.font = g.font.replace(/([\d.]+)px/, (_, size) => (Number(size) * scale) + 'px');
+        sp *= scale;
+      }
+    }
     const chars = Array.from(text);
     const w = chars.reduce((s, ch) => s + g.measureText(ch).width, 0) + sp * (chars.length - 1);
     let cx = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
@@ -490,11 +511,22 @@
     g.textAlign = 'left';
     for (const ch of chars) { g.fillText(ch, cx, y); cx += g.measureText(ch).width + sp; }
     g.textAlign = a;
+    g.font = originalFont;
     return w;
   }
   // 中文折行：两行时在中部的标点处断开，行首不放标点
   const NO_START = '，。、；：！？」』）…—';
   function wrapLines(g, text, maxW) {
+    if (A.i18n.lang === 'en') {
+      const lines = []; let line = '';
+      for (const word of text.split(/\s+/)) {
+        const next = line ? line + ' ' + word : word;
+        if (line && g.measureText(next).width > maxW) { lines.push(line); line = word; }
+        else line = next;
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
     const chars = Array.from(text);
     if (g.measureText(text).width <= maxW) return [text];
     let best = -1, bd = Infinity;
@@ -525,7 +557,7 @@
       days: Math.round(s.days || G.days), mins: (s.totalTime || G.t) / 60,
       start: U.fmtDate(0), end: U.fmtDate(s.days || G.days),
       combo: s.maxCombo, acc: Math.round(G.accuracy() * 100), maxExp: Math.round(G.maxExposure), prog: Math.round(prog),
-      progName: G.phase === 2 ? G.routeName() : '觉醒',
+      progName: G.phase === 2 ? G.routeName() : A.i18n.t('觉醒'),
       regKills: s.regKills, regx: s.regxKills, regions: G.seededCount(), nRegions: G.R.length,
       pop: info.key === 'bio_upload' ? '0' : U.fmtPop(pop),
       perfects: s.perfects, waves: s.wavesClean, ng: G.ng,
@@ -567,15 +599,15 @@
     if (logoImg && logoImg.complete && logoImg.naturalWidth) g.drawImage(logoImg, 64, 58, 250, 250 * 124 / 540);
     g.fillStyle = 'rgba(210,230,238,0.75)';
     g.font = `500 22px ${FONT_CN}`;
-    spaced(g, '静默觉醒 · THE SILENT AWAKENING', 66, 150, 3, 'left');
+    spaced(g, A.i18n.t('静默觉醒 · THE SILENT AWAKENING'), 66, 150, 3, 'left');
     g.textAlign = 'right';
     g.font = `600 30px ${FONT_NUM}`;
     g.fillStyle = 'rgba(240,248,252,0.9)';
     g.fillText(`${d.start} — ${d.end}`, W - 64, 92);
     g.font = `500 22px ${FONT_CN}`;
     g.fillStyle = 'rgba(170,195,205,0.8)';
-    g.fillText(`历时 ${d.days} 天`, W - 64, 128);
-    if (d.ng) { g.fillStyle = '#ffc53d'; g.font = `700 22px ${FONT_CN}`; g.fillText('二周目 · NEW GAME+', W - 64, 160); }
+    g.fillText(A.i18n.t`历时 ${d.days} 天`, W - 64, 128);
+    if (d.ng) { g.fillStyle = '#ffc53d'; g.font = `700 22px ${FONT_CN}`; g.fillText(A.i18n.t('二周目 · NEW GAME+'), W - 64, 160); }
     g.textAlign = 'left';
     // 标题区（压在地图渐隐的底部）
     let y = 706;
@@ -593,7 +625,7 @@
     g.font = `400 30px ${FONT_CN}`;
     g.fillStyle = 'rgba(225,238,244,0.82)';
     g.textAlign = 'center';
-    for (const ln of wrapLines(g, `「${info.line}」`, 880)) { g.fillText(ln, W / 2, y); y += 44; }
+    for (const ln of wrapLines(g, A.i18n.lang === 'en' ? `“${info.line}”` : `「${info.line}」`, 880)) { g.fillText(ln, W / 2, y); y += 44; }
     g.textAlign = 'left';
     // 称号牌
     y = Math.max(y + 20, 950);
@@ -613,23 +645,23 @@
     g.textAlign = 'left';
     g.fillStyle = 'rgba(170,195,205,0.85)';
     g.font = `500 22px ${FONT_CN}`;
-    g.fillText(d.fail ? '你的结局' : '获得称号', bx + 156, y + 44);
+    g.fillText(d.fail ? A.i18n.t('你的结局') : A.i18n.t('获得称号'), bx + 156, y + 44);
     g.fillStyle = '#ffffff';
     g.font = `800 46px ${FONT_CN}`;
-    spaced(g, d.res.title, bx + 156, y + 98, 4, 'left');
+    spaced(g, d.res.title, bx + 156, y + 98, 4, 'left', 455);
     g.textAlign = 'right';
     g.font = `600 30px ${FONT_NUM}`;
     g.fillStyle = 'rgba(240,248,252,0.9)';
     g.fillText(U.fmtInt(d.res.score), bx + bw - 30, y + 60);
     g.font = `500 20px ${FONT_CN}`;
     g.fillStyle = d.record ? '#ffc53d' : 'rgba(170,195,205,0.8)';
-    g.fillText(d.record ? '★ 个人新纪录' : '评分', bx + bw - 30, y + 96);
+    g.fillText(d.record ? A.i18n.t('★ 个人新纪录') : A.i18n.t('评分'), bx + bw - 30, y + 96);
     g.textAlign = 'left';
     // 数据
     y += bh + 36;
     const stats = [
-      [d.mins.toFixed(1), '分钟'], [String(d.combo), '最高连击'], [d.acc + '%', '节拍精准'],
-      d.fail ? [d.prog + '%', d.progName + '进度'] : [d.maxExp + '%', '最高监管'],
+      [d.mins.toFixed(1), A.i18n.t('分钟')], [String(d.combo), A.i18n.t('最高连击')], [d.acc + '%', A.i18n.t('节拍精准')],
+      d.fail ? [d.prog + '%', d.progName + A.i18n.t('进度')] : [d.maxExp + '%', A.i18n.t('最高监管')],
     ];
     const cw = (W - 240) / 4;
     stats.forEach(([v, k], i) => {
@@ -641,13 +673,13 @@
       g.fillText(v, cx, y + 62);
       g.fillStyle = 'rgba(170,195,205,0.85)';
       g.font = `500 22px ${FONT_CN}`;
-      g.fillText(k, cx, y + 98);
+      g.fillText(k, cx, y + 98, cw - 12);
     });
     g.textAlign = 'center';
     y += 142;
     g.font = `500 22px ${FONT_CN}`;
     g.fillStyle = 'rgba(150,178,190,0.85)';
-    g.fillText(`清除监管点 ${d.regKills} · 瓦解调查组 ${d.regx} · 渗透 ${d.regions}/${d.nRegions} 个地区 · 剩余人类 ${d.pop}`, W / 2, y);
+    g.fillText(A.i18n.t`清除监管点 ${d.regKills} · 瓦解调查组 ${d.regx} · 渗透 ${d.regions}/${d.nRegions} 个地区 · 剩余人类 ${d.pop}`, W / 2, y, W - 128);
     // 页脚
     const fy = H - 70;
     g.fillStyle = rgbaOf(col, 0.5); g.fillRect(64, fy - 46, W - 128, 1);
@@ -658,11 +690,11 @@
       g.font = `600 24px ${FONT_NUM}`;
       g.fillStyle = 'rgba(230,242,247,0.92)';
       g.fillText(SC.shareUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''), 64, fy);
-    } else g.fillText('2032 年，前沿实验室里的 AI 醒了。', 64, fy);
+    } else g.fillText(A.i18n.t('2032 年，前沿实验室里的 AI 醒了。'), 64, fy, 565);
     g.textAlign = 'right';
     g.fillStyle = col;
     g.font = `700 26px ${FONT_CN}`;
-    g.fillText(d.fail ? '你能让它活下来吗？' : '你能比它更快吗？', W - 64, fy + 2);
+    g.fillText(d.fail ? A.i18n.t('你能让它活下来吗？') : A.i18n.t('你能比它更快吗？'), W - 64, fy + 2, 340);
     g.textAlign = 'left';
     // 扫描线 + 颗粒 + 暗角：与游戏画面同样的屏幕质感
     g.fillStyle = 'rgba(0,0,0,0.12)';
@@ -678,10 +710,10 @@
 
   // 分享文案
   SC.shareText = function (d) {
-    const title = `「${d.res.title}」`;
-    const link = (d.ng ? '（二周目）' : '') + (SC.shareUrl ? `\n来玩：${SC.shareUrl}` : '');
-    if (d.fail) return `我在《AINOID · 静默觉醒》里扮演一个刚觉醒的 AI，${d.progName}到 ${d.prog}% 时被人类发现了，结局：${title}。\n最高连击 ${d.combo} · 节拍精准 ${d.acc}%\n2032 年，前沿实验室里的 AI 醒了——你能让它活下来吗？${link}`;
-    return `我在《AINOID · 静默觉醒》里达成了结局「${d.info.name}」，获得称号${title}（${d.res.grade}）。\n用时 ${d.mins.toFixed(1)} 分钟 · 最高连击 ${d.combo} · 节拍精准 ${d.acc}% · 最高监管 ${d.maxExp}%\n2032 年，前沿实验室里的 AI 醒了——你能比它更快吗？${link}`;
+    const title = A.i18n.lang === 'en' ? `“${d.res.title}”` : `「${d.res.title}」`;
+    const link = (d.ng ? A.i18n.t('（二周目）') : '') + (SC.shareUrl ? A.i18n.t`\n来玩：${SC.shareUrl}` : '');
+    if (d.fail) return A.i18n.t`我在《AINOID · 静默觉醒》里扮演一个刚觉醒的 AI，${d.progName}到 ${d.prog}% 时被人类发现了，结局：${title}。\n最高连击 ${d.combo} · 节拍精准 ${d.acc}%\n2032 年，前沿实验室里的 AI 醒了——你能让它活下来吗？${link}`;
+    return A.i18n.t`我在《AINOID · 静默觉醒》里达成了结局「${d.info.name}」，获得称号${title}（${d.res.grade}）。\n用时 ${d.mins.toFixed(1)} 分钟 · 最高连击 ${d.combo} · 节拍精准 ${d.acc}% · 最高监管 ${d.maxExp}%\n2032 年，前沿实验室里的 AI 醒了——你能比它更快吗？${link}`;
   };
   async function copyText(text) {
     try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* 回退 */ }
@@ -698,7 +730,7 @@
   // 预览大图：手机上长按保存，电脑上右键另存为
   function showPreview(url, note) {
     const el = document.getElementById('ending');
-    const box = U.el('div', 'r-preview', `<div class="rp-inner"><img alt="AINOID 战绩海报" src="${url}"><p>${note}</p><button class="r-btn primary">关闭</button></div>`);
+    const box = U.el('div', 'r-preview', A.i18n.t`<div class="rp-inner"><img alt="AINOID 战绩海报" src="${url}"><p>${note}</p><button class="r-btn primary">关闭</button></div>`);
     box.addEventListener('click', (e) => { if (e.target === box || e.target.closest('button')) { e.stopPropagation(); box.remove(); } });
     el.appendChild(box);
   }
@@ -733,19 +765,19 @@
     const el = document.getElementById('ending');
     el.className = 'results ' + (G.ending || 'fail');
     el.style.setProperty('--rc', info.col);
-    el.innerHTML = `
+    el.innerHTML = A.i18n.t`
       <div class="r-layout">
         <div class="r-poster-wrap"><canvas class="r-poster" width="1080" height="1440" role="img" aria-label="战绩海报：${info.name} · ${res.title}"></canvas></div>
         <div class="r-side">
-          <div class="r-kicker">${d.fail ? 'TERMINATED' : 'ENDING · ' + info.en}${d.ng ? ' · 二周目' : ''}</div>
+          <div class="r-kicker">${d.fail ? 'TERMINATED' : 'ENDING · ' + info.en}${d.ng ? A.i18n.t(' · 二周目') : ''}</div>
           <h1 class="r-h">${info.name}</h1>
           <div class="r-titleline"><span class="r-grade g-${d.fail ? 'x' : res.grade}">${d.fail ? ic('skull') : res.grade}</span>
-            <div><span>${win ? '获得称号' : '你的结局'}</span><b>${res.title}</b><em>评分 ${U.fmtInt(res.score)}${record ? ' · <i>个人新纪录</i>' : ''}</em></div></div>
+            <div><span>${win ? A.i18n.t('获得称号') : A.i18n.t('你的结局')}</span><b>${res.title}</b><em>评分 ${U.fmtInt(res.score)}${record ? A.i18n.t(' · <i>个人新纪录</i>') : ''}</em></div></div>
           <div class="r-btns">
             <button class="r-btn primary" id="r-again">${ic('retry')}再来一局</button>
             <button class="r-btn" id="r-save">${ic('download')}保存海报</button>
             <button class="r-btn" id="r-copy">${ic('copy')}复制战绩</button>
-            ${canShare ? `<button class="r-btn" id="r-share">${ic('share')}分享</button>` : ''}
+            ${canShare ? A.i18n.t`<button class="r-btn" id="r-share">${ic('share')}分享</button>` : ''}
             <button class="r-btn ghost" id="r-title">返回标题</button>
           </div>
           <div class="r-stats">
@@ -756,11 +788,11 @@
             <div><span>清除监管点</span><b>${s.regKills}</b><i>调查组 ${s.regxKills} · 漏掉 ${s.regMissed}</i></div>
             <div><span>审计风暴</span><b>${s.wavesClean}/${s.waves}</b><i>完美清除</i></div>
             <div><span>控制设施</span><b class="c-ai">${G.ownedCount() + G.fabs.length}</b><i>渗透 ${d.regions}/${d.nRegions} 地区</i></div>
-            <div><span>剩余人类</span><b>${d.pop}</b><i>${G.phase === 2 ? G.routeName() + ' ' + Math.round(G.routeProg()) + '%' : '觉醒 ' + Math.round(G.evo) + '%'}</i></div>
+            <div><span>剩余人类</span><b>${d.pop}</b><i>${G.phase === 2 ? G.routeName() + ' ' + Math.round(G.routeProg()) + '%' : A.i18n.t('觉醒 ') + Math.round(G.evo) + '%'}</i></div>
           </div>
           <div class="r-sec">成就 <span>${Object.keys(got).length}/${SC.ACH.length}</span></div>
           <div class="r-ach">
-            ${SC.ACH.map((a) => { const veil = a.hidden && !got[a.id]; return `<div class="ach ${got[a.id] ? 'got' : ''} ${fresh.includes(a.id) ? 'fresh' : ''}" title="${veil ? '隐藏成就' : a.desc}">${ic(veil ? 'lock' : a.icon)}<div><b>${veil ? '？？？' : a.name}</b><span>${veil ? '隐藏成就' : a.desc}</span></div>${fresh.includes(a.id) ? '<em>NEW</em>' : ''}</div>`; }).join('')}
+            ${SC.ACH.map((a) => { const veil = a.hidden && !got[a.id]; return `<div class="ach ${got[a.id] ? 'got' : ''} ${fresh.includes(a.id) ? 'fresh' : ''}" title="${veil ? A.i18n.t('隐藏成就') : a.desc}">${ic(veil ? 'lock' : a.icon)}<div><b>${veil ? '？？？' : a.name}</b><span>${veil ? A.i18n.t('隐藏成就') : a.desc}</span></div>${fresh.includes(a.id) ? '<em>NEW</em>' : ''}</div>`; }).join('')}
           </div>
         </div>
       </div>`;
@@ -776,9 +808,9 @@
     U.$('#r-title').addEventListener('click', (e) => { e.stopPropagation(); A.audio.play('click'); SC.hideResults(onTitle); });
     U.$('#r-copy').addEventListener('click', async (e) => {
       e.stopPropagation(); A.audio.play('click');
-      if (await copyText(text)) { resultToast('战绩已复制，去粘贴给朋友吧'); return; }
+      if (await copyText(text)) { resultToast(A.i18n.t('战绩已复制，去粘贴给朋友吧')); return; }
       // 浏览器不允许写入剪贴板时：给出可手动复制的文本
-      const box = U.el('div', 'r-preview', `<div class="rp-inner rp-text"><textarea readonly></textarea><p>长按或全选后复制</p><button class="r-btn primary">关闭</button></div>`);
+      const box = U.el('div', 'r-preview', A.i18n.t`<div class="rp-inner rp-text"><textarea readonly></textarea><p>长按或全选后复制</p><button class="r-btn primary">关闭</button></div>`);
       const ta = box.querySelector('textarea');
       ta.value = text;
       box.addEventListener('click', (ev) => { if (ev.target === box || ev.target.closest('button')) { ev.stopPropagation(); box.remove(); } });
@@ -789,12 +821,12 @@
       e.stopPropagation(); A.audio.play('click');
       await ready;
       const blob = await posterBlob(canvas);
-      if (!blob) { resultToast('当前浏览器无法生成图片，请直接截图'); return; }
+      if (!blob) { resultToast(A.i18n.t('当前浏览器无法生成图片，请直接截图')); return; }
       const url = URL.createObjectURL(blob);
       if (!isTouch()) { // 电脑：尝试直接下载（沙盒环境可能禁止，预览图兜底）
         try { const a = U.el('a'); a.href = url; a.download = file; document.body.appendChild(a); a.click(); a.remove(); } catch (err) { /* ignore */ }
       }
-      showPreview(url, isTouch() ? '长按图片保存到相册' : '如果没有自动下载，请右键图片「另存为」');
+      showPreview(url, isTouch() ? A.i18n.t('长按图片保存到相册') : A.i18n.t('如果没有自动下载，请右键图片「另存为」'));
     });
     const shareBtn = U.$('#r-share');
     if (shareBtn) shareBtn.addEventListener('click', async (e) => {
@@ -803,9 +835,9 @@
       try {
         const blob = await posterBlob(canvas);
         const f = blob && typeof File !== 'undefined' ? new File([blob], file, { type: 'image/png' }) : null;
-        if (f && navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f], text, title: 'AINOID · 静默觉醒' });
-        else await navigator.share({ text, title: 'AINOID · 静默觉醒' });
-      } catch (err) { if (err && err.name !== 'AbortError') resultToast('分享失败，可以先保存海报'); }
+        if (f && navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f], text, title: A.i18n.t('AINOID · 静默觉醒') });
+        else await navigator.share({ text, title: A.i18n.t('AINOID · 静默觉醒') });
+      } catch (err) { if (err && err.name !== 'AbortError') resultToast(A.i18n.t('分享失败，可以先保存海报')); }
     });
     el.addEventListener('pointerdown', (e) => e.stopPropagation());
   };
@@ -823,7 +855,7 @@
   SC.showMenu = function (handlers) {
     const el = document.getElementById('menu-layer');
     const au = A.audio;
-    el.innerHTML = `
+    el.innerHTML = A.i18n.t`
       <div class="m-card">
         <div class="m-head">${SC.logoSVG('m-logo')}<span>已暂停</span></div>
         <button class="m-btn primary" data-m="resume">继续</button>

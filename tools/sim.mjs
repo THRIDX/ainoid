@@ -29,7 +29,7 @@ function load() {
   };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['assets/js/data/regions.js', 'assets/js/data/world-data.js', 'assets/js/core/util.js', 'assets/js/core/world.js',
+  for (const f of ['assets/js/data/en.js', 'assets/js/i18n.js', 'assets/js/data/regions.js', 'assets/js/data/world-data.js', 'assets/js/core/util.js', 'assets/js/core/world.js',
     'assets/js/game/game.js', 'assets/js/data/events.js']) {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
   }

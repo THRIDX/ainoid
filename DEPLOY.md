@@ -6,6 +6,7 @@
 
 - 仓库：<https://github.com/THRIDX/ainoid>
 - 游戏：<https://thridx.github.io/ainoid/>
+- 英文直达：<https://thridx.github.io/ainoid/?lang=en>；中文直达：<https://thridx.github.io/ainoid/?lang=zh>
 - 自动发布工作流：`.github/workflows/pages.yml`
 
 修改游戏后，先本地试玩，再提交并推送：
@@ -30,7 +31,7 @@ node tools/build-dist.mjs
 |---|---|
 | `dist/web/` | 静态网站目录，`index.html` 在根目录。上传到任何静态托管服务 |
 | `dist/ainoid-web.zip` | 上面目录的压缩包，适合“拖进去上传”的平台 |
-| `dist/ainoid.html` | 单文件版（约 840 KB），样式和脚本全部内联，离线也能玩 |
+| `dist/ainoid.html` | 单文件版（包含中英文文本），样式和脚本全部内联，离线也能玩 |
 
 每次改完游戏重新运行一次即可。
 

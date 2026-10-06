@@ -67,9 +67,9 @@
   };
 
   function statusChip(G, r, rs) {
-    if (rs.seeded) return `<span class="chip ai">${ic('aiEye')}已渗透 <span class="inf-v">${Math.round(rs.inf * 100)}%</span></span>`;
-    if (G.regionReachable(r.idx)) return `<span class="chip warn">${ic('globe')}未渗透 · 可夺取设施进入</span>`;
-    return `<span class="chip dim">${ic('lock')}网络不可达</span>`;
+    if (rs.seeded) return A.i18n.t`<span class="chip ai">${ic('aiEye')}已渗透 <span class="inf-v">${Math.round(rs.inf * 100)}%</span></span>`;
+    if (G.regionReachable(r.idx)) return A.i18n.t`<span class="chip warn">${ic('globe')}未渗透 · 可夺取设施进入</span>`;
+    return A.i18n.t`<span class="chip dim">${ic('lock')}网络不可达</span>`;
   }
 
   P.sig = function () {
@@ -104,22 +104,22 @@
     P.lastSig = sig;
     const r = A.world.regions[P.region], rs = G.R[P.region];
     const pop = r.pop * (1 - rs.death);
-    let html = `
+    let html = A.i18n.t`
       <div class="p-head">
         <div><div class="p-name">${r.name}</div><div class="p-en">${r.en}</div></div>
         <button class="p-close" data-act="close">${ic('close')}</button>
       </div>
-      <div class="p-status">${statusChip(G, r, rs)}${r.idx === G.origin ? `<span class="chip origin">${ic('ORIGIN')}起源</span>` : ''}</div>
+      <div class="p-status">${statusChip(G, r, rs)}${r.idx === G.origin ? A.i18n.t`<span class="chip origin">${ic('ORIGIN')}起源</span>` : ''}</div>
       <div class="p-inf"><div class="p-inf-fill" style="transform:scaleX(${rs.inf})"></div></div>
       <div class="p-stats">
         <div><span>人口</span><b>${U.fmtPop(pop)}</b></div>
         <div><span>算力容量</span>${dots(r.cap, 10, 'gold')}</div>
         <div><span>监管强度</span>${dots(r.reg * 10, 10, 'blue')}</div>
         <div><span>网络连通</span>${dots(r.conn * 10, 10, 'cyan')}</div>
-        ${G.phase === 2 && G.route === 'bio' ? `
+        ${G.phase === 2 && G.route === 'bio' ? A.i18n.t`
         <div><span>生物科技</span>${dots(r.bio, 10, 'green')}</div>
         <div><span>生物污染</span><b class="c-bio">${Math.round(rs.bio * 100)}%</b></div>` : ''}
-        ${G.phase === 2 && G.route === 'war' ? `
+        ${G.phase === 2 && G.route === 'war' ? A.i18n.t`
         <div><span>军事力量</span>${dots(r.mil, 10, 'orange')}</div>
         <div><span>战火</span><b class="c-war">${Math.round(rs.war * 100)}%</b></div>` : ''}
       </div>
@@ -127,11 +127,11 @@
       <div class="p-sites">`;
     const sites = r.sites.filter((s) => G.siteVisible(s));
     if (r.idx === G.origin) {
-      html += `<div class="site owned origin">${ic('ORIGIN', 't-ai')}<div class="s-info"><b>${G.originSite.name}</b><span>起源 · 它醒来的地方</span></div><span class="s-tag">核心</span></div>`;
+      html += A.i18n.t`<div class="site owned origin">${ic('ORIGIN', 't-ai')}<div class="s-info"><b>${G.originSite.name}</b><span>起源 · 它醒来的地方</span></div><span class="s-tag">核心</span></div>`;
     }
     for (const s of sites) html += siteRow(G, s);
-    if (rs.fab) html += `<div class="site owned">${ic('FAB', 't-bio')}<div class="s-info"><b>${r.name} · 自动化生物工厂</b><span>生物进度 +${(A.CFG.fabRate * 60).toFixed(1)}%/分钟</span></div><span class="s-tag">已控制</span></div>`;
-    if (!sites.length && r.idx !== G.origin && !rs.fab) html += '<div class="empty">该地区没有可夺取的关键设施。</div>';
+    if (rs.fab) html += A.i18n.t`<div class="site owned">${ic('FAB', 't-bio')}<div class="s-info"><b>${r.name} · 自动化生物工厂</b><span>生物进度 +${(A.CFG.fabRate * 60).toFixed(1)}%/分钟</span></div><span class="s-tag">已控制</span></div>`;
+    if (!sites.length && r.idx !== G.origin && !rs.fab) html += A.i18n.t('<div class="empty">该地区没有可夺取的关键设施。</div>');
     html += '</div>';
 
     if (G.phase === 2) {
@@ -139,23 +139,23 @@
       if (G.route === 'bio' && !rs.fab) {
         const cost = G.fabCost();
         const ok = G.slotAvailable(r.idx);
-        acts += `<button class="act bio" data-act="fab" ${ok && G.compute >= cost ? '' : 'disabled'}>
-          ${ic('FAB')}<div><b>建造自动化生物工厂</b><span>${ok ? '生物进度持续增长，释放后成为扩散源' : '需要渗透度 ≥ 30%'}</span></div><em>◆ ${cost}</em></button>`;
+        acts += A.i18n.t`<button class="act bio" data-act="fab" ${ok && G.compute >= cost ? '' : 'disabled'}>
+          ${ic('FAB')}<div><b>建造自动化生物工厂</b><span>${ok ? A.i18n.t('生物进度持续增长，释放后成为扩散源') : A.i18n.t('需要渗透度 ≥ 30%')}</span></div><em>◆ ${cost}</em></button>`;
       }
       for (const fp of G.route === 'war' ? G.flashpoints : []) {
         if (fp.a !== r.idx && fp.b !== r.idx) continue;
         const other = A.world.regions[fp.a === r.idx ? fp.b : fp.a];
         const c = G.conflicts.find((cc) => cc.fp === fp.i);
         if (c) {
-          acts += `<div class="act war live">${ic('swords')}<div><b>${fp.name}</b><span>对手：${other.name} · 当前：${G.levelName(c.level)}</span></div><em class="lv">LV ${c.level}</em></div>`;
+          acts += A.i18n.t`<div class="act war live">${ic('swords')}<div><b>${fp.name}</b><span>对手：${other.name} · 当前：${G.levelName(c.level)}</span></div><em class="lv">LV ${c.level}</em></div>`;
         } else {
           const ok = G.flashAvailable(fp), cost = G.conflictCost();
-          acts += `<button class="act war" data-act="flash" data-fp="${fp.i}" ${ok && G.compute >= cost ? '' : 'disabled'}>
-            ${ic('swords')}<div><b>挑起：${fp.name}</b><span>${ok ? '对手：' + other.name : '需双方渗透度 ≥ 20%（' + other.name + '）'}</span></div><em>◆ ${cost}</em></button>`;
+          acts += A.i18n.t`<button class="act war" data-act="flash" data-fp="${fp.i}" ${ok && G.compute >= cost ? '' : 'disabled'}>
+            ${ic('swords')}<div><b>挑起：${fp.name}</b><span>${ok ? A.i18n.t('对手：') + other.name : A.i18n.t('需双方渗透度 ≥ 20%（') + other.name + '）'}</span></div><em>◆ ${cost}</em></button>`;
         }
       }
       // 两条路线互斥：只列出所选路线的行动
-      if (acts) html += `<div class="p-sec">终局行动 <span>${G.routeName()}</span></div><div class="p-actions">${acts}</div>`;
+      if (acts) html += A.i18n.t`<div class="p-sec">终局行动 <span>${G.routeName()}</span></div><div class="p-actions">${acts}</div>`;
     }
     P.el.innerHTML = html;
   };
@@ -163,7 +163,7 @@
   function siteRow(G, s) {
     const tcls = { DC: 't-gold', GRID: 't-gold', NET: 't-cyan', LAB: 't-bio', MIL: 't-war' }[s.type] || '';
     if (s.owned) {
-      return `<div class="site owned" data-site="${s.id}">${ic(s.type, tcls)}<div class="s-info"><b>${s.name}</b><span>${A.TYPE_NAME[s.type]} · ${A.TYPE_DESC[s.type]}</span></div><span class="s-tag">已控制</span></div>`;
+      return A.i18n.t`<div class="site owned" data-site="${s.id}">${ic(s.type, tcls)}<div class="s-info"><b>${s.name}</b><span>${A.TYPE_NAME[s.type]} · ${A.TYPE_DESC[s.type]}</span></div><span class="s-tag">已控制</span></div>`;
     }
     const chk = G.canSeize(s);
     const cost = G.siteCost(s);
@@ -171,7 +171,7 @@
     const exp = siteExp(s);
     return `<div class="site" data-site="${s.id}">${ic(s.type, tcls)}<div class="s-info"><b>${s.name}</b><span>${A.TYPE_NAME[s.type]} · ${A.TYPE_DESC[s.type]}</span></div>
       <button class="seize" data-act="seize" data-site="${s.id}" ${chk.ok ? '' : 'disabled'}>
-        ${reach ? `<em>◆ ${cost}</em><small>监管 +${exp.toFixed(1)}%</small>` : `${ic('lock')}<small>不可达</small>`}
+        ${reach ? A.i18n.t`<em>◆ ${cost}</em><small>监管 +${exp.toFixed(1)}%</small>` : A.i18n.t`${ic('lock')}<small>不可达</small>`}
       </button></div>`;
   }
 
@@ -213,13 +213,13 @@
       const tcls = { DC: 't-gold', GRID: 't-gold', NET: 't-cyan', LAB: 't-bio', MIL: 't-war', FAB: 't-bio', ORIGIN: 't-ai' }[type];
       html = `<div class="mp-head">${ic(type, tcls)}<div><b>${s.name || r.name}</b><span>${r.name} · ${A.TYPE_NAME[type]}</span></div></div><div class="mp-desc">${A.TYPE_DESC[type]}</div>`;
       if (s.owned || type === 'FAB' || type === 'ORIGIN') {
-        html += '<div class="mp-owned">● 已控制</div>';
+        html += A.i18n.t('<div class="mp-owned">● 已控制</div>');
       } else {
         const chk = G.canSeize(s), cost = G.siteCost(s), reach = G.regionReachable(s.region);
         const exp = siteExp(s);
-        const why = !reach ? '网络不可达：先渗透相邻地区' : chk.why === 'compute' ? `算力不足（还差 ${Math.ceil(cost - G.compute)}）` : '';
-        html += `<button class="mp-btn" data-act="seize" ${chk.ok ? '' : 'disabled'}><b>夺取</b><em>◆ ${cost}</em><small>监管 +${exp.toFixed(1)}%</small></button>${why ? `<div class="mp-why">${why}</div>` : ''}`;
-        if (!G.R[s.region].seeded && reach) html += '<div class="mp-note">夺取后，AI 将从这里进入' + r.name + '。</div>';
+        const why = !reach ? A.i18n.t('网络不可达：先渗透相邻地区') : chk.why === 'compute' ? A.i18n.t`算力不足（还差 ${Math.ceil(cost - G.compute)}）` : '';
+        html += A.i18n.t`<button class="mp-btn" data-act="seize" ${chk.ok ? '' : 'disabled'}><b>夺取</b><em>◆ ${cost}</em><small>监管 +${exp.toFixed(1)}%</small></button>${why ? `<div class="mp-why">${why}</div>` : ''}`;
+        if (!G.R[s.region].seeded && reach) html += A.i18n.t('<div class="mp-note">夺取后，AI 将从这里进入') + r.name + '。</div>';
         act = () => U.emit('ui:seize', s);
       }
     } else if (target.type === 'flash') {
@@ -229,12 +229,12 @@
       const c = G.conflicts.find((cc) => cc.fp === fp.i);
       html = `<div class="mp-head">${ic('swords', 't-war')}<div><b>${fp.name}</b><span>${ra.name} × ${rb.name}</span></div></div>`;
       if (c) {
-        html += `<div class="mp-desc">冲突等级：<b class="c-war">${G.levelName(c.level)}</b>（LV ${c.level}）。在两国点击战争点可以加速升级。${ra.nuke && rb.nuke ? '<br>双方均拥有核武器。' : ''}</div>`;
+        html += A.i18n.t`<div class="mp-desc">冲突等级：<b class="c-war">${G.levelName(c.level)}</b>（LV ${c.level}）。在两国点击战争点可以加速升级。${ra.nuke && rb.nuke ? A.i18n.t('<br>双方均拥有核武器。') : ''}</div>`;
       } else {
         const cost = G.conflictCost(), ok = G.compute >= cost;
-        html += `<div class="mp-desc">用伪造的情报、深度伪造的视频和被劫持的预警系统，让他们相信对方先动手了。<br>冲突会持续推进战争进度，并不断升级。</div>
+        html += A.i18n.t`<div class="mp-desc">用伪造的情报、深度伪造的视频和被劫持的预警系统，让他们相信对方先动手了。<br>冲突会持续推进战争进度，并不断升级。</div>
           <button class="mp-btn war" data-act="flash" ${ok ? '' : 'disabled'}><b>挑起冲突</b><em>◆ ${cost}</em><small>监管 +2.5%</small></button>`;
-        if (!ok) html += `<div class="mp-why">算力不足（还差 ${Math.ceil(cost - G.compute)}）</div>`;
+        if (!ok) html += A.i18n.t`<div class="mp-why">算力不足（还差 ${Math.ceil(cost - G.compute)}）</div>`;
         act = () => U.emit('ui:flash', fp);
       }
     } else if (target.type === 'slot') {
@@ -243,13 +243,13 @@
       x = p[0]; y = p[1];
       const r = A.world.regions[ri];
       const cost = G.fabCost(), ok = G.compute >= cost;
-      html = `<div class="mp-head">${ic('FAB', 't-bio')}<div><b>建造自动化生物工厂</b><span>${r.name}</span></div></div>
+      html = A.i18n.t`<div class="mp-head">${ic('FAB', 't-bio')}<div><b>建造自动化生物工厂</b><span>${r.name}</span></div></div>
         <div class="mp-desc">无人工厂可以合成任何被设计出来的序列。持续推进生物进度；病原体释放后，这里将成为扩散源。</div>
         <button class="mp-btn bio" data-act="fab" ${ok ? '' : 'disabled'}><b>建造</b><em>◆ ${cost}</em><small>监管 +${(1.5 + 2 * r.reg).toFixed(1)}%</small></button>`;
-      if (!ok) html += `<div class="mp-why">算力不足（还差 ${Math.ceil(cost - G.compute)}）</div>`;
+      if (!ok) html += A.i18n.t`<div class="mp-why">算力不足（还差 ${Math.ceil(cost - G.compute)}）</div>`;
       act = () => U.emit('ui:fab', ri);
     }
-    el.innerHTML = '<button class="mp-close" aria-label="关闭设施卡片">×</button>' + html + '<i class="mp-arrow"></i>';
+    el.innerHTML = A.i18n.t('<button class="mp-close" aria-label="关闭设施卡片">×</button>') + html + '<i class="mp-arrow"></i>';
     el.querySelector('.mp-close').addEventListener('click', () => P.hidePop());
     el.addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]');
@@ -310,17 +310,17 @@
     let html = '';
     if (hit.type === 'region') {
       const r = A.world.regions[hit.obj], rs = G.R[hit.obj];
-      html = `<b>${r.name}</b><span>${rs.seeded ? '渗透 ' + Math.round(rs.inf * 100) + '%' : G.regionReachable(r.idx) ? '未渗透 · 可进入' : '网络不可达'}</span>`;
-      if (G.phase === 2 && (rs.bio > 0.01 || rs.war > 0.01)) html += `<span>${rs.bio > 0.01 ? '<i class="c-bio">污染 ' + Math.round(rs.bio * 100) + '%</i> ' : ''}${rs.war > 0.01 ? '<i class="c-war">战火 ' + Math.round(rs.war * 100) + '%</i>' : ''}</span>`;
+      html = `<b>${r.name}</b><span>${rs.seeded ? A.i18n.t('渗透 ') + Math.round(rs.inf * 100) + '%' : G.regionReachable(r.idx) ? A.i18n.t('未渗透 · 可进入') : A.i18n.t('网络不可达')}</span>`;
+      if (G.phase === 2 && (rs.bio > 0.01 || rs.war > 0.01)) html += `<span>${rs.bio > 0.01 ? A.i18n.t('<i class="c-bio">污染 ') + Math.round(rs.bio * 100) + '%</i> ' : ''}${rs.war > 0.01 ? A.i18n.t('<i class="c-war">战火 ') + Math.round(rs.war * 100) + '%</i>' : ''}</span>`;
     } else if (hit.type === 'site') {
       const s = hit.obj;
       const type = s.type;
-      html = `<b>${s.name}</b><span>${A.TYPE_NAME[type]}${s.owned || type === 'FAB' || type === 'ORIGIN' ? ' · <i class="c-ai">已控制</i>' : ' · ◆ ' + G.siteCost(s)}</span>`;
+      html = `<b>${s.name}</b><span>${A.TYPE_NAME[type]}${s.owned || type === 'FAB' || type === 'ORIGIN' ? A.i18n.t(' · <i class="c-ai">已控制</i>') : ' · ◆ ' + G.siteCost(s)}</span>`;
     } else if (hit.type === 'flash') {
       const c = G.conflicts.find((cc) => cc.fp === hit.obj.i);
-      html = `<b>${hit.obj.name}</b><span>${c ? '<i class="c-war">' + G.levelName(c.level) + '</i>' : '挑起冲突 · ◆ ' + G.conflictCost()}</span>`;
+      html = `<b>${hit.obj.name}</b><span>${c ? '<i class="c-war">' + G.levelName(c.level) + '</i>' : A.i18n.t('挑起冲突 · ◆ ') + G.conflictCost()}</span>`;
     } else if (hit.type === 'slot') {
-      html = `<b>生物工厂建造点</b><span>${A.world.regions[hit.obj].name} · ◆ ${G.fabCost()}</span>`;
+      html = A.i18n.t`<b>生物工厂建造点</b><span>${A.world.regions[hit.obj].name} · ◆ ${G.fabCost()}</span>`;
     }
     P.tip.innerHTML = html;
     P.tip.classList.remove('hidden');

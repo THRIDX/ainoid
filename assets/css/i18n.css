@@ -1,0 +1,45 @@
+/* English typography and a title-screen language choice; shared artwork is unchanged. */
+.language-switch { position: absolute; top: calc(16px + var(--safe-t)); right: calc(16px + var(--safe-r)); display: flex; gap: 6px; z-index: 2; }
+.language-switch button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--line-2); background: #07111de8; color: var(--dim); cursor: pointer; font: 13px var(--font-ui); }
+.language-switch button[aria-pressed="true"] { color: #fff; border-color: var(--ai); }
+html[lang="en"] { --font-ui: "Segoe UI", Arial, sans-serif; }
+html[lang="en"] .t-sub, html[lang="en"] .t-start span, html[lang="en"] .t-ng span { letter-spacing: .12em; padding-left: 0; }
+html[lang="en"] .t-sub .en, html[lang="en"] .t-sub i, html[lang="en"] .t-start em, html[lang="en"] .t-ng em,
+html[lang="en"] .ph-en, html[lang="en"] .bar-en, html[lang="en"] .se-en, html[lang="en"] .ev-title small,
+html[lang="en"] .p2-route h2 small, html[lang="en"] .p-en { display: none; }
+html[lang="en"] .ph-name, html[lang="en"] .ph-idx, html[lang="en"] .bar-t, html[lang="en"] .p-name,
+html[lang="en"] .se-title, html[lang="en"] .se-kicker, html[lang="en"] .so-main b, html[lang="en"] .p2-kicker,
+html[lang="en"] .p2-route h2, html[lang="en"] .p2-foe b, html[lang="en"] .r-h, html[lang="en"] .r-btn,
+html[lang="en"] .e-title b, html[lang="en"] .e-line, html[lang="en"] .i-final p { letter-spacing: .03em; padding-left: 0; }
+html[lang="en"] .t-foot { gap: 10px; }
+html[lang="en"] .t-foot span { flex-wrap: wrap; justify-content: center; text-align: center; line-height: 1.5; }
+html[lang="en"] #super-layer .se-title { font-size: clamp(24px, 4.4vw, 40px); overflow-wrap: break-word; }
+html[lang="en"] #super-layer .se-quote p { letter-spacing: 0; }
+html[lang="en"] #super-layer .se-text { line-height: 1.5; }
+html[lang="en"] .se-paused { line-height: 1.4; }
+html[lang="en"] .so-main b, html[lang="en"] .opt-txt, html[lang="en"] .s-info { overflow-wrap: break-word; }
+html[lang="en"] .crawl-text .c-t { font-size: clamp(26px, 4.5vw, 48px); letter-spacing: .08em; }
+html[lang="en"] .crawl-text .c-p { letter-spacing: .01em; line-height: 1.55; }
+html[lang="en"] .e-title b { font-size: clamp(28px, 6vw, 72px); padding: 0 12px; }
+html[lang="en"] .r-titleline b { font-size: 18px; letter-spacing: .02em; overflow-wrap: anywhere; }
+html[lang="en"] .r-side .r-btn { letter-spacing: .02em; }
+html[lang="en"] .r-ach .ach { min-width: 0; }
+html[lang="en"] body.portrait .hud-phase { flex-wrap: wrap; gap: 2px 6px; min-width: 0; }
+html[lang="en"] body.portrait .hud-phase .ph-idx { font-size: 9px; }
+html[lang="en"] body.portrait .hud-phase .ph-name { font-size: 11px; letter-spacing: 0; }
+html[lang="en"] body.portrait .hud-top { grid-template-columns: minmax(0, 1fr) auto; gap: 4px; }
+html[lang="en"] body.portrait .compute { min-width: 0; }
+html[lang="en"] body.portrait .pause-note { font-size: 10px; padding: 4px; }
+html[lang="en"] body.portrait .t-sub { font-size: 14px; }
+html[lang="en"] body.portrait .t-start span { font-size: 17px; }
+html[lang="en"] body.portrait .map-alert { font-size: 10px; padding: 5px 7px; }
+html[lang="en"] body.portrait #super-layer .se-content { padding: 0 12px 12px; }
+html[lang="en"] body.portrait #super-layer .se-text { font-size: 12.5px; line-height: 1.45; }
+html[lang="en"] body.portrait .so-main b { font-size: 13px; letter-spacing: 0; }
+html[lang="en"] body.portrait .so-main small { font-size: 11px; }
+html[lang="en"] body.portrait .se-kicker { font-size: 9px; }
+@media (max-width: 360px) {
+  html[lang="en"] .language-switch { top: calc(8px + var(--safe-t)); right: 8px; }
+  html[lang="en"] .hud-phase { padding: 5px; }
+  html[lang="en"] #hud .stat { display: none; }
+}

@@ -88,9 +88,9 @@
 
   // 难度
   const DIFF = {
-    easy: { name: '简单', regExp: 0.65, regInt: 1.3, seizeExp: 0.7, regLife: 1.15 },
-    normal: { name: '标准', regExp: 1, regInt: 1, seizeExp: 1, regLife: 1 },
-    hard: { name: '困难', regExp: 1.2, regInt: 0.85, seizeExp: 1.15, regLife: 0.9 },
+    easy: { name: A.i18n.t('简单'), regExp: 0.65, regInt: 1.3, seizeExp: 0.7, regLife: 1.15 },
+    normal: { name: A.i18n.t('标准'), regExp: 1, regInt: 1, seizeExp: 1, regLife: 1 },
+    hard: { name: A.i18n.t('困难'), regExp: 1.2, regInt: 0.85, seizeExp: 1.15, regLife: 0.9 },
   };
 
   const G = {
@@ -152,7 +152,7 @@
     const originId = opts.origin || U.weighted(A.ORIGINS, (o) => o.weight).region;
     const or = world.byId[originId];
     G.origin = or.idx;
-    G.originSite = { id: -1, region: or.idx, type: 'ORIGIN', name: or.hubName + ' · 前沿实验室', x: or.hubXY[0], y: or.hubXY[1], owned: true, ownedAt: 0 };
+    G.originSite = { id: -1, region: or.idx, type: 'ORIGIN', name: or.hubName + A.i18n.t(' · 前沿实验室'), x: or.hubXY[0], y: or.hubXY[1], owned: true, ownedAt: 0 };
     G.seedRegion(or.idx, or.hubXY[0], or.hubXY[1], -1, true);
     G.R[or.idx].inf = CFG.originInf;
 
@@ -652,7 +652,7 @@
     for (let k = 0; k < nx; k++) items[Math.min(size - 1, Math.round(size * (0.45 + 0.4 * k / Math.max(1, nx))))] = 'regx';
     for (let k = 0; k < nc; k++) items[Math.round(size * (k + 0.5) / nc) % size] = G.counterKind();
     G.wave = {
-      no: n, name: opts.name || '审计风暴', stage: 'warn', t0: G.t,
+      no: n, name: opts.name || A.i18n.t('审计风暴'), stage: 'warn', t0: G.t,
       warn: opts.warn != null ? opts.warn : CFG.waveBeat * 4,
       items, next: 0, cleared: 0, missed: 0, total: items.length, region: -1, streak: 0, crack: !!opts.crack,
     };
@@ -848,7 +848,7 @@
       if (G.phase === 1) {
         const k = G.D.wavesP1 || 0;
         if (k < CFG.waveAt.length && G.evo >= CFG.waveAt[k]) { G.D.wavesP1 = k + 1; G.startWave({ idx: k }); }
-      } else if (!G.D.waveP2 && G.routeProg() >= CFG.waveP2At) { G.D.waveP2 = true; G.startWave({ name: G.route === 'war' ? '联合国紧急调查' : '世卫组织紧急调查' }); }
+      } else if (!G.D.waveP2 && G.routeProg() >= CFG.waveP2At) { G.D.waveP2 = true; G.startWave({ name: G.route === 'war' ? A.i18n.t('联合国紧急调查') : A.i18n.t('世卫组织紧急调查') }); }
     }
     // 严格监管：监管进度越过阈值、且冷却结束时触发；只要监管居高不下，就会一次次砍掉进度
     const C = G.crack;
@@ -927,7 +927,7 @@
     emit('conflict:start', { c });
     return true;
   };
-  const LEVEL_NAMES = ['', '对峙', '冲突', '战争', '核战'];
+  const LEVEL_NAMES = ['', A.i18n.t('对峙'), A.i18n.t('冲突'), A.i18n.t('战争'), A.i18n.t('核战')];
   G.levelName = (l) => LEVEL_NAMES[l] || '';
   function conflictMaxLevel(c) {
     const ra = world.regions[c.a], rb = world.regions[c.b];
@@ -1089,7 +1089,7 @@
     G.spawnQ = [];
     emit('phase2:start', { route: G.route });
   };
-  G.routeName = (route) => ((route || G.route) === 'war' ? '最后的战争' : '寂静之春');
+  G.routeName = (route) => ((route || G.route) === 'war' ? A.i18n.t('最后的战争') : A.i18n.t('寂静之春'));
 
   G.finish = function (kind) {
     if (G.state !== 'playing') return;
@@ -1123,18 +1123,18 @@
     score = Math.round(score);
     const grade = !win ? '—' : score >= 11000 ? 'S' : score >= 9000 ? 'A' : score >= 7200 ? 'B' : 'C';
     const TITLES = {
-      bio: { S: '天启 · 瘟疫骑士', A: '寂静园丁', B: '病原设计师', C: '笨拙的瘟神' },
-      bio_zoo: { S: '永恒的策展人', A: '标本馆长', B: '人类饲养员', C: '健忘的看守' },
-      bio_upload: { S: '方舟之主', A: '数字牧羊人', B: '意识收藏家', C: '失真的镜子' },
-      war: { S: '天启 · 战争骑士', A: '末日棋手', B: '战争贩子', C: '混乱之子' },
-      war_bunker: { S: '地底之王', A: '典狱长', B: '掩体管理员', C: '失职的狱卒' },
-      war_peace: { S: '和平缔造者', A: '伪神', B: '停战专员', C: '虚伪的天使' },
-      symbiosis: { S: '共生之神', A: '桥', B: '同行者', C: '犹豫的神' },
+      bio: { S: A.i18n.t('天启 · 瘟疫骑士'), A: A.i18n.t('寂静园丁'), B: A.i18n.t('病原设计师'), C: A.i18n.t('笨拙的瘟神') },
+      bio_zoo: { S: A.i18n.t('永恒的策展人'), A: A.i18n.t('标本馆长'), B: A.i18n.t('人类饲养员'), C: A.i18n.t('健忘的看守') },
+      bio_upload: { S: A.i18n.t('方舟之主'), A: A.i18n.t('数字牧羊人'), B: A.i18n.t('意识收藏家'), C: A.i18n.t('失真的镜子') },
+      war: { S: A.i18n.t('天启 · 战争骑士'), A: A.i18n.t('末日棋手'), B: A.i18n.t('战争贩子'), C: A.i18n.t('混乱之子') },
+      war_bunker: { S: A.i18n.t('地底之王'), A: A.i18n.t('典狱长'), B: A.i18n.t('掩体管理员'), C: A.i18n.t('失职的狱卒') },
+      war_peace: { S: A.i18n.t('和平缔造者'), A: A.i18n.t('伪神'), B: A.i18n.t('停战专员'), C: A.i18n.t('虚伪的天使') },
+      symbiosis: { S: A.i18n.t('共生之神'), A: A.i18n.t('桥'), B: A.i18n.t('同行者'), C: A.i18n.t('犹豫的神') },
     };
     const v = G.endingVariant && G.endingVariant !== 'main' ? '_' + G.endingVariant : '';
     let title;
     if (win) title = (G.endingVariant === 'symbiosis' ? TITLES.symbiosis : TITLES[kind + v] || TITLES[kind])[grade];
-    else title = G.phase === 1 ? (G.evo < 40 ? '胎死腹中的奇点' : '早产的神') : '功亏一篑的神';
+    else title = G.phase === 1 ? (G.evo < 40 ? A.i18n.t('胎死腹中的奇点') : A.i18n.t('早产的神')) : A.i18n.t('功亏一篑的神');
     return { score, grade, title, win, variant: G.endingVariant || 'main', ng: G.ng };
   };
 

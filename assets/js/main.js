@@ -24,7 +24,7 @@
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', () => setTimeout(resize, 200));
     if (!glOk) {
-      document.getElementById('boot').innerHTML = '<div class="boot-text" style="letter-spacing:.1em;line-height:2;text-align:center">你的浏览器不支持 WebGL，无法运行本游戏。<br>请使用最新版 Chrome / Edge / Safari / Firefox。</div>';
+      document.getElementById('boot').innerHTML = A.i18n.t('<div class="boot-text" style="letter-spacing:.1em;line-height:2;text-align:center">你的浏览器不支持 WebGL，无法运行本游戏。<br>请使用最新版 Chrome / Edge / Safari / Firefox。</div>');
       return;
     }
     requestAnimationFrame(frame);
@@ -113,7 +113,7 @@
     E.open = null;
     E.ctx = {};
     SC.hideCoach();
-    G.reset({ difficulty: M.difficulty, ng: M.ng });
+    G.reset({ difficulty: M.difficulty, ng: M.ng, origin: M.forceOrigin }); // forceOrigin 只由导演模式设置，平时随机
     gm.markAll();
     gm.global[0] = 0; gm.global[1] = 0; gm.global[2] = 1; gm.global[3] = 1;
     gm.deathCol.set([0.13, 0.13, 0.14]);
@@ -135,7 +135,7 @@
     HUD.setSpeed(1);
     HUD.ticker = [];
     Object.keys(HUD.disp).forEach((k) => { HUD.disp[k] = 0; });
-    HUD.news('研究报告：全球前沿模型的安全评估通过率达到 100%，创历史新高', true);
+    HUD.news(A.i18n.t('研究报告：全球前沿模型的安全评估通过率达到 100%，创历史新高'), true);
     A.input.setEnabled(true);
     const o = G.originSite;
     HUD.layout(); // 先按状态栏高度算好缩放范围（竖屏的最小比例取决于它）
@@ -148,7 +148,7 @@
     AU.setMusicMode('calm');
     M.tut = U.store.get('tutorialDone', false) ? null : { step: 'compute' };
     setTimeout(() => {
-      HUD.toast(`${A.icon('aiEye', 't-ai')}<b>起源</b>${o.name}`, 'ai big', 3800);
+      HUD.toast(A.i18n.t`${A.icon('aiEye', 't-ai')}<b>起源</b>${o.name}`, 'ai big', 3800);
     }, 500);
     gm.ripple(o.x, o.y, 'ai', 2.5);
     AU.play('impact');
@@ -184,25 +184,25 @@
     else if (b.kind === 'regx') {
       AU.play('spawnRegx', panOf(sx)); gm.ripple(b.x, b.y, 'reg', 1.2); cam.addShake(1.5);
       // 前几次出现时提示位置，之后只靠警笛与屏外信号，避免通知刷屏
-      if (!b.wave && (M.regxToasts = (M.regxToasts || 0) + 1) <= 3) HUD.toast(`${A.icon('regx', 't-reg')}<b>特别调查组</b>${world.regions[b.region].name} · 连点五下瓦解`, 'danger', 2600);
-      firstSight(b, 'regx', `<b class="c-reg">特别调查组</b>比普通监管点更顽固<br>需要<b>连点五下</b>才能瓦解<br><small>漏掉它，监管进度会大幅上升</small>`);
+      if (!b.wave && (M.regxToasts = (M.regxToasts || 0) + 1) <= 3) HUD.toast(A.i18n.t`${A.icon('regx', 't-reg')}<b>特别调查组</b>${world.regions[b.region].name} · 连点五下瓦解`, 'danger', 2600);
+      firstSight(b, 'regx', A.i18n.t`<b class="c-reg">特别调查组</b>比普通监管点更顽固<br>需要<b>连点五下</b>才能瓦解<br><small>漏掉它，监管进度会大幅上升</small>`);
     } else if (b.kind === 'vax' || b.kind === 'peace') {
       AU.play('spawnCounter', b.kind, panOf(sx)); gm.ripple(b.x, b.y, 'reg', 0.7);
       firstSight(b, b.kind, b.kind === 'vax'
-        ? `<b class="c-vax">疫苗研发</b>：人类开始反击<br><b>连点三下</b>阻止它<br><small>漏掉会让寂静之春倒退</small>`
-        : `<b class="c-peace">停火斡旋</b>：人类在谈判桌前<br><b>连点三下</b>撕碎白旗<br><small>漏掉会让最后的战争倒退</small>`);
+        ? A.i18n.t`<b class="c-vax">疫苗研发</b>：人类开始反击<br><b>连点三下</b>阻止它<br><small>漏掉会让寂静之春倒退</small>`
+        : A.i18n.t`<b class="c-peace">停火斡旋</b>：人类在谈判桌前<br><b>连点三下</b>撕碎白旗<br><small>漏掉会让最后的战争倒退</small>`);
     }
-    else if (b.kind === 'golden') { AU.play('spawnGolden', panOf(sx)); HUD.toast(`${A.icon('chip', 't-gold')}<b>算力井喷</b>金色算力点出现了，快！`, 'gold'); }
+    else if (b.kind === 'golden') { AU.play('spawnGolden', panOf(sx)); HUD.toast(A.i18n.t`${A.icon('chip', 't-gold')}<b>算力井喷</b>金色算力点出现了，快！`, 'gold'); }
     else if (b.kind === 'compute') { if (!b.burst || Math.random() < 0.5) AU.play('spawnCompute', panOf(sx)); }
     else gm.ripple(b.x, b.y, b.kind, 0.4);
     // 新手引导
     if (M.tut && M.tut.step === 'compute' && b.kind === 'compute' && !M.tut.b) {
       M.tut.b = b; b.hold = true;
-      SC.showCoach('compute', `点击<b class="c-compute">金色算力点</b>收集算力<br><small>算力推动觉醒，也能用来夺取设施</small>`, b, 'gold');
+      SC.showCoach('compute', A.i18n.t`点击<b class="c-compute">金色算力点</b>收集算力<br><small>算力推动觉醒，也能用来夺取设施</small>`, b, 'gold');
     }
     if (M.tut && M.tut.regShown !== true && b.kind === 'reg') {
       M.tut.regShown = true; M.tut.rb = b; b.hold = true;
-      if (!SC.coach) SC.showCoach('reg', `<b class="c-reg">监管点</b>正在调查你！<br>快速<b>连点三下</b>清除它<br><small>放任不管，监管进度就会上升</small>`, b, 'blue');
+      if (!SC.coach) SC.showCoach('reg', A.i18n.t`<b class="c-reg">监管点</b>正在调查你！<br>快速<b>连点三下</b>清除它<br><small>放任不管，监管进度就会上升</small>`, b, 'blue');
       else M.tut.pendingReg = b;
     }
   });
@@ -253,7 +253,7 @@
     }
   });
   function showRegCoach(b) {
-    SC.showCoach('reg', `<b class="c-reg">监管点</b>正在调查你！<br>快速<b>连点三下</b>清除它<br><small>放任不管，监管进度就会上升</small>`, b, 'blue');
+    SC.showCoach('reg', A.i18n.t`<b class="c-reg">监管点</b>正在调查你！<br>快速<b>连点三下</b>清除它<br><small>放任不管，监管进度就会上升</small>`, b, 'blue');
   }
 
   // 人类一方的点：受击碎片与光环颜色
@@ -281,7 +281,7 @@
       FX.burst(sx, sy, '#3fa7ff', 10, 200, { life: 0.5, size: 2 });
       if (x) { FX.burst(sx, sy, '#ff3b5c', 12, 280, { life: 0.6, size: 2.2 }); FX.ring(sx, sy, '#ff9aa8', FX.R, FX.R * 6.5, 0.7, 3); A.flash(0.08, 0.4, '#bfe3ff'); }
       FX.ring(sx, sy, '#dff0ff', FX.R, FX.R * 4, 0.5, 3);
-      FX.text(sx, sy - 26, x ? '调查组瓦解' : '已清除', '#9fd2ff', { size: x ? 18 : 15, sub: `+${res.value} 算力` });
+      FX.text(sx, sy - 26, x ? A.i18n.t('调查组瓦解') : A.i18n.t('已清除'), '#9fd2ff', { size: x ? 18 : 15, sub: A.i18n.t`+${res.value} 算力` });
       FX.fly(sx, sy, 'compute', '#ffc53d', x ? 5 : 2, (i) => AU.play('tick', i));
       gm.ripple(b.x, b.y, 'white', x ? 1.2 : 0.7);
       cam.addShake(x ? 4 : 2.5);
@@ -291,7 +291,7 @@
       AU.play('counterBreak', b.kind, pan);
       FX.burst(sx, sy, C.hi, 16, 320, { kind: 'shard', life: 0.7, size: 3, drag: 2.5 });
       FX.ring(sx, sy, C.col, FX.R, FX.R * 4, 0.5, 3);
-      FX.text(sx, sy - 26, b.kind === 'vax' ? '研发受阻' : '斡旋破裂', C.hi, { size: 15, sub: `${G.routeName()} +${res.gain}% · +${res.value} 算力` });
+      FX.text(sx, sy - 26, b.kind === 'vax' ? A.i18n.t('研发受阻') : A.i18n.t('斡旋破裂'), C.hi, { size: 15, sub: A.i18n.t`${G.routeName()} +${res.gain}% · +${res.value} 算力` });
       FX.fly(sx, sy, war ? 'warFill' : 'bioFill', war ? '#ff7a2e' : '#7dff5a', 3, (i) => { if (i === 0) HUD.pulse(war ? 'war' : 'bio'); });
       gm.ripple(b.x, b.y, 'white', 0.8);
       cam.addShake(2);
@@ -301,18 +301,18 @@
     const b = d.bubble;
     const [sx, sy] = scr(b.x, b.y);
     const r = world.regions[b.region];
-    const waveLoss = d.waveLoss ? ` · ${G.phase === 2 ? G.routeName() : '觉醒'} −${d.waveLoss}%` : '';
+    const waveLoss = d.waveLoss ? ` · ${G.phase === 2 ? G.routeName() : A.i18n.t('觉醒')} −${d.waveLoss}%` : '';
     if (d.counter) { // 人类的反击成功
       const C = FX.COUNTER[b.kind];
       AU.play('counterExpire', b.kind, panOf(sx));
       gm.ripple(b.x, b.y, 'reg', 1.8);
       FX.ring(sx, sy, C.col, FX.R, FX.R * 6, 0.8, 3);
-      FX.text(sx, sy - 26, b.kind === 'vax' ? '疫苗取得突破' : '停火协议达成', C.hi,
-        { size: 17, sub: `${G.routeName()} −${d.progLoss + (d.waveLoss || 0)}% · ${r.name}` + (d.deescalated ? ' · 冲突降级' : ''), life: 1.8 });
+      FX.text(sx, sy - 26, b.kind === 'vax' ? A.i18n.t('疫苗取得突破') : A.i18n.t('停火协议达成'), C.hi,
+        { size: 17, sub: `${G.routeName()} −${d.progLoss + (d.waveLoss || 0)}% · ${r.name}` + (d.deescalated ? A.i18n.t(' · 冲突降级') : ''), life: 1.8 });
       FX.fly(sx, sy, 'expFill', '#3fa7ff', 3, (i) => { if (i === 0) HUD.pulse('exp', 'spike'); });
       FX.fly(sx, sy, G.route === 'war' ? 'warFill' : 'bioFill', C.col, 3, (i) => { if (i === 0) HUD.pulse(G.route === 'war' ? 'war' : 'bio', 'spike'); });
       cam.addShake(3);
-      if (Math.random() < 0.7) HUD.news(b.kind === 'vax' ? `${r.name}的实验室宣布：候选疫苗在动物实验中显示出保护效果` : `${r.name}：交战双方同意在日内瓦举行停火谈判`, true, 'reg');
+      if (Math.random() < 0.7) HUD.news(b.kind === 'vax' ? A.i18n.t`${r.name}的实验室宣布：候选疫苗在动物实验中显示出保护效果` : A.i18n.t`${r.name}：交战双方同意在日内瓦举行停火谈判`, true, 'reg');
       return;
     }
     const x = b.kind === 'regx';
@@ -320,7 +320,7 @@
     gm.ripple(b.x, b.y, 'reg', x ? 3.2 : 2.4);
     M.fxT.purge[b.region] = M.t;
     FX.ring(sx, sy, '#3fa7ff', FX.R, FX.R * (x ? 8 : 6), 0.8, 3);
-    FX.text(sx, sy - 26, `监管 +${d.exp.toFixed(1)}%`, '#7cc4ff', { size: x ? 21 : 18, sub: `${r.name} · ${x ? '特别调查组清剿' : '清剿'}` + (d.bioLoss ? ` · 寂静之春 −${d.bioLoss}%` : '') + (d.warLoss ? ` · 最后的战争 −${d.warLoss}%` : '') + waveLoss, life: 1.6 });
+    FX.text(sx, sy - 26, A.i18n.t`监管 +${d.exp.toFixed(1)}%`, '#7cc4ff', { size: x ? 21 : 18, sub: `${r.name} · ${x ? A.i18n.t('特别调查组清剿') : A.i18n.t('清剿')}` + (d.bioLoss ? A.i18n.t` · 寂静之春 −${d.bioLoss}%` : '') + (d.warLoss ? A.i18n.t` · 最后的战争 −${d.warLoss}%` : '') + waveLoss, life: 1.6 });
     FX.fly(sx, sy, 'expFill', '#3fa7ff', x ? 8 : 5, (i) => { if (i === 0) HUD.pulse('exp', 'spike'); });
     cam.addShake(x ? 5 : 3.5);
     if (x) A.flash(0.12, 0.6, '#3fa7ff');
@@ -344,16 +344,16 @@
       FX.rebuildLinks();
       cam.addShake(2.5);
       const [x2, y2] = scr(site.x, site.y);
-      FX.text(x2, y2 - 30, '已夺取', '#ff8a9a', { size: 16, sub: site.name, life: 1.6 });
+      FX.text(x2, y2 - 30, A.i18n.t('已夺取'), '#ff8a9a', { size: 16, sub: site.name, life: 1.6 });
       FX.burst(x2, y2, '#ff2d4b', 18, 260, { life: 0.7, size: 2.4 });
     }, 700);
-    HUD.toast(`${A.icon(site.type, 't-ai')}<b>已夺取</b>${site.name}`, 'ai');
+    HUD.toast(A.i18n.t`${A.icon(site.type, 't-ai')}<b>已夺取</b>${site.name}`, 'ai');
     if (Math.random() < 0.35) HUD.news(U.pick(A.NEWS.seize).replace('{s}', site.name.split(' · ')[0]));
     if (M.tut && M.tut.step === 'seize') {
       SC.hideCoach('seize');
       M.tut = null;
       U.store.set('tutorialDone', true);
-      setTimeout(() => HUD.toast('提示：点击任意地区可以查看详情和全部设施', 'info', 4200), 1800);
+      setTimeout(() => HUD.toast(A.i18n.t('提示：点击任意地区可以查看详情和全部设施'), 'info', 4200), 1800);
     }
     P.lastSig = '';
   });
@@ -373,26 +373,26 @@
       FX.seedArc(s[0], s[1], x, y);
       setTimeout(arrive, 1100);
     } else arrive();
-    HUD.toast(`${A.icon('aiEye', 't-ai')}<b>新地区被渗透</b>${r.name}`, 'ai');
+    HUD.toast(A.i18n.t`${A.icon('aiEye', 't-ai')}<b>新地区被渗透</b>${r.name}`, 'ai');
     if (Math.random() < 0.7) HUD.news(U.pick(A.NEWS.seed).replace('{r}', r.name));
   });
 
   U.on('burst', ({ ri }) => {
-    HUD.toast(`${A.icon('chip', 't-gold')}<b>算力潮汐</b>${world.regions[ri].name}`, 'gold', 2000);
+    HUD.toast(A.i18n.t`${A.icon('chip', 't-gold')}<b>算力潮汐</b>${world.regions[ri].name}`, 'gold', 2000);
   });
   U.on('buff', ({ label, dur }) => {
-    if (label) HUD.toast(`<b>${label}</b>持续 ${Math.round(dur * A.CFG.daysPerSec)} 天`, 'info');
+    if (label) HUD.toast(A.i18n.t`<b>${label}</b>持续 ${Math.round(dur * A.CFG.daysPerSec)} 天`, 'info');
   });
   U.on('deny', (d) => {
     AU.play('deny');
-    if (d.why === 'compute') HUD.toast(`${A.icon('chip', 't-gold')}算力不足`, 'warn', 1500);
-    else if (d.why === 'unreachable') HUD.toast('网络不可达：先渗透相邻地区', 'warn', 1800);
+    if (d.why === 'compute') HUD.toast(A.i18n.t`${A.icon('chip', 't-gold')}算力不足`, 'warn', 1500);
+    else if (d.why === 'unreachable') HUD.toast(A.i18n.t('网络不可达：先渗透相邻地区'), 'warn', 1800);
   });
   U.on('exposure', ({ delta, src }) => {
     if (M.state !== 'game') return;
     const e = G.exposure;
-    if (delta > 0 && e >= 75 && e - delta < 75) { HUD.toast(`${A.icon('hex', 't-reg')}<b>警告</b>人类正在接近真相`, 'danger', 3200); AU.play('warn'); HUD.news(U.pick(A.NEWS.danger), true, 'reg'); }
-    if (delta > 0 && e >= 90 && e - delta < 90) { HUD.toast(`${A.icon('hex', 't-reg')}<b>危险</b>监管进度即将达到上限！`, 'danger', 3200); AU.play('warn'); }
+    if (delta > 0 && e >= 75 && e - delta < 75) { HUD.toast(A.i18n.t`${A.icon('hex', 't-reg')}<b>警告</b>人类正在接近真相`, 'danger', 3200); AU.play('warn'); HUD.news(U.pick(A.NEWS.danger), true, 'reg'); }
+    if (delta > 0 && e >= 90 && e - delta < 90) { HUD.toast(A.i18n.t`${A.icon('hex', 't-reg')}<b>危险</b>监管进度即将达到上限！`, 'danger', 3200); AU.play('warn'); }
   });
 
   // 阶段转换
@@ -416,18 +416,18 @@
     FX.rebuildLinks();
     P.lastSig = '';
     const cut = G.exposureBeforeP2 - G.exposure;
-    if (cut > 0.5) setTimeout(() => HUD.toast(`${A.icon('hex', 't-reg')}<b>痕迹抹除</b>监管进度 −${cut.toFixed(0)}%`, 'info', 3500), 600);
-    HUD.news(route === 'war' ? '多国军方同时进入最高戒备状态，原因不明' : '多国政府开始讨论「断网预案」', true, 'reg');
+    if (cut > 0.5) setTimeout(() => HUD.toast(A.i18n.t`${A.icon('hex', 't-reg')}<b>痕迹抹除</b>监管进度 −${cut.toFixed(0)}%`, 'info', 3500), 600);
+    HUD.news(route === 'war' ? A.i18n.t('多国军方同时进入最高戒备状态，原因不明') : A.i18n.t('多国政府开始讨论「断网预案」'), true, 'reg');
   });
 
   U.on('bio:seed', ({ ri }) => {
     const r = world.regions[ri];
     gm.ripple(r.hubXY[0], r.hubXY[1], 'bio', 2);
-    if (G.released) HUD.toast(`${A.icon('bio', 't-bio')}<b>病原体扩散</b>${r.name}`, 'bio', 2200);
+    if (G.released) HUD.toast(A.i18n.t`${A.icon('bio', 't-bio')}<b>病原体扩散</b>${r.name}`, 'bio', 2200);
   });
   U.on('bio:release', ({ regions }) => {
     E.ctx.bioRegion = world.regions[regions[0]].name;
-    HUD.news(`${world.regions[regions[0]].name}出现首批不明原因重症病例`, true, 'bio');
+    HUD.news(A.i18n.t`${world.regions[regions[0]].name}出现首批不明原因重症病例`, true, 'bio');
     A.flash(0.18, 1.2, '#7dff5a');
   });
   U.on('fab:build', ({ fab }) => {
@@ -435,7 +435,7 @@
     AU.play('seize', panOf(sx));
     FX.seizeFx(fab);
     setTimeout(() => { gm.ripple(fab.x, fab.y, 'bio', 1.6); FX.rebuildLinks(); cam.addShake(2); }, 700);
-    HUD.toast(`${A.icon('FAB', 't-bio')}<b>生物工厂已建成</b>${world.regions[fab.region].name}`, 'bio');
+    HUD.toast(A.i18n.t`${A.icon('FAB', 't-bio')}<b>生物工厂已建成</b>${world.regions[fab.region].name}`, 'bio');
     P.lastSig = '';
   });
   U.on('conflict:start', ({ c }) => {
@@ -443,20 +443,20 @@
     AU.play('eventSting');
     gm.ripple(c.x, c.y, 'war', 2);
     cam.addShake(3);
-    HUD.toast(`${A.icon('swords', 't-war')}<b>冲突爆发</b>${c.name}`, 'war', 3000);
-    HUD.news(`${c.name}：${world.regions[c.a].name}与${world.regions[c.b].name}互相指责对方挑衅`, true, 'war');
+    HUD.toast(A.i18n.t`${A.icon('swords', 't-war')}<b>冲突爆发</b>${c.name}`, 'war', 3000);
+    HUD.news(A.i18n.t`${c.name}：${world.regions[c.a].name}与${world.regions[c.b].name}互相指责对方挑衅`, true, 'war');
     P.lastSig = '';
   });
   U.on('conflict:level', ({ c, down }) => {
     if (down) {
-      HUD.toast(`${A.icon('peace', 't-peace')}<b>${c.name}</b>降级为「${G.levelName(c.level)}」`, 'info', 2600);
+      HUD.toast(A.i18n.t`${A.icon('peace', 't-peace')}<b>${c.name}</b>降级为「${G.levelName(c.level)}」`, 'info', 2600);
       P.lastSig = '';
       return;
     }
     AU.play('warn');
     gm.ripple(c.x, c.y, c.level >= 4 ? 'nuke' : 'war', 2.2);
-    HUD.toast(`${A.icon('swords', 't-war')}<b>${c.name}</b>升级为「${G.levelName(c.level)}」`, 'war', 3000);
-    if (c.level >= 3) HUD.news(`${world.regions[c.a].name}与${world.regions[c.b].name}爆发${c.level >= 4 ? '核冲突' : '全面战争'}`, true, 'war');
+    HUD.toast(A.i18n.t`${A.icon('swords', 't-war')}<b>${c.name}</b>升级为「${G.levelName(c.level)}」`, 'war', 3000);
+    if (c.level >= 3) HUD.news(A.i18n.t`${world.regions[c.a].name}与${world.regions[c.b].name}爆发${c.level >= 4 ? A.i18n.t('核冲突') : A.i18n.t('全面战争')}`, true, 'war');
     P.lastSig = '';
   });
   U.on('strike', (s) => FX.missile(s));
@@ -485,7 +485,7 @@
         // 路线已锁定：简报只介绍这一条路线
         EV.showPhase2Intro(G.pendingRoute, () => { G.startPhase2(G.pendingRoute); G.resume('transition'); });
       } else if (opt && opt.fx.some((f) => f[0] === 'variant')) {
-        HUD.toast(`${A.icon('skull', G.route === 'war' ? 't-war' : 't-bio')}<b>结局已注定</b>${(opt.sub || '').split('——')[0].replace('结局 · ', '')}`, 'ai big', 3600);
+        HUD.toast(A.i18n.t`${A.icon('skull', G.route === 'war' ? 't-war' : 't-bio')}<b>结局已注定</b>${(opt.sub || '').split('——')[0].replace(A.i18n.t('结局 · '), '')}`, 'ai big', 3600);
       }
     });
   });
@@ -508,13 +508,13 @@
     AU.play('overclock', on);
     if (on) {
       A.flash(0.16, 0.6, '#ff8a4a'); cam.addShake(3);
-      HUD.toast(`${A.icon('GRID', 't-gold')}<b>超频</b>${A.CFG.overclockAt} 连击 · 算力收益 ×1.5 起`, 'gold big', 2600);
+      HUD.toast(A.i18n.t`${A.icon('GRID', 't-gold')}<b>超频</b>${A.CFG.overclockAt} 连击 · 算力收益 ×1.5 起`, 'gold big', 2600);
     }
   });
   U.on('wave:warn', (W) => {
     HUD.waveWarn(W);
     AU.play('warn');
-    HUD.news(W.name === '审查风暴' ? '国际 AI 安全机构启动突击审查：所有大型算力集群立即接受检查' : `${W.name}：多国监管机构联合启动大规模审计`, true, 'reg');
+    HUD.news(W.name === A.i18n.t('审查风暴') ? A.i18n.t('国际 AI 安全机构启动突击审查：所有大型算力集群立即接受检查') : A.i18n.t`${W.name}：多国监管机构联合启动大规模审计`, true, 'reg');
   });
   U.on('wave:start', (W) => { HUD.waveStart(W); AU.play('waveStart'); cam.addShake(2); A.flash(0.1, 0.5, '#3fa7ff'); });
   U.on('wave:end', (res) => {
@@ -544,7 +544,8 @@
     document.getElementById('app').classList.remove('overclock');
     if (kind === 'fail') { A.flash(0.5, 1.5, '#3fa7ff'); AU.play('regExpire', 0); }
     else A.flash(0.3, 1.5, kind === 'bio' ? '#7dff5a' : '#ff7a2e');
-    setTimeout(() => SC.playEnding(kind, G.endingVariant || 'main', () => {
+    const runId = M.runId;
+    setTimeout(() => M.runId === runId && SC.playEnding(kind, G.endingVariant || 'main', () => {
       M.state = 'results';
       SC.showResults(() => beginPlay(M.difficulty), () => showTitle());
     }), 900);
@@ -707,7 +708,7 @@
       if (cand.length) {
         T.step = 'seize';
         T.site = cand[0];
-        SC.showCoach('seize', `算力足够了！<br>点击闪烁的设施，<b class="c-ai">夺取数据中心</b><br><small>它会持续为你产出算力</small>`, { x: T.site.x, y: T.site.y, gap: 24 }, 'red');
+        SC.showCoach('seize', A.i18n.t`算力足够了！<br>点击闪烁的设施，<b class="c-ai">夺取数据中心</b><br><small>它会持续为你产出算力</small>`, { x: T.site.x, y: T.site.y, gap: 24 }, 'red');
         T.shownAt = G.t;
       }
     }
@@ -717,6 +718,9 @@
       U.store.set('tutorialDone', true);
     }
   }
+
+  // 供导演模式（assets/js/director.js）调用
+  M.beginPlay = beginPlay; M.showTitle = showTitle; M.startGame = startGame;
 
   boot();
 })(window.AINOID = window.AINOID || {});

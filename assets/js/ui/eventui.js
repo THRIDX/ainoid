@@ -24,6 +24,7 @@
   function typewrite(el, text, cps, done) {
     let i = 0, cancelled = false;
     const chars = Array.from(text);
+    if (A.i18n.lang === 'en') cps *= 1.7;
     el.textContent = '';
     const cursor = U.el('span', 'tw-cursor');
     el.appendChild(cursor);
@@ -56,7 +57,7 @@
     EV.closing = false;
     const G = A.game;
     const layer = document.getElementById('event-layer');
-    layer.innerHTML = `
+    layer.innerHTML = A.i18n.t`
       <div class="ev-dim"></div>
       <div class="ev-card theme-${ev.theme}" role="dialog" aria-modal="true" aria-label="${ev.title}">
         <div class="ev-art"><canvas></canvas><div class="ev-art-fade"></div>
@@ -79,7 +80,7 @@
     ev.options.forEach((o, i) => {
       const tags = A.events.tags(o.fx).map((tg) => `<i class="tag ${tg.cls}">${tg.t}</i>`).join('');
       const need = G.compute < A.events.optionCost(o);
-      const b = U.el('button', 'ev-opt' + (need ? ' disabled' : ''), `<span class="opt-key">${i + 1}</span><span class="opt-txt">${o.text}</span><span class="opt-tags">${tags}${need ? '<i class="tag bad">算力不足</i>' : ''}</span>`);
+      const b = U.el('button', 'ev-opt' + (need ? ' disabled' : ''), `<span class="opt-key">${i + 1}</span><span class="opt-txt">${o.text}</span><span class="opt-tags">${tags}${need ? A.i18n.t('<i class="tag bad">算力不足</i>') : ''}</span>`);
       b.style.transitionDelay = (0.35 + i * 0.08) + 's';
       if (need) b.disabled = true;
       b.addEventListener('click', (e) => {
@@ -109,17 +110,17 @@
     EV.closing = false;
     const G = A.game;
     const layer = document.getElementById('super-layer');
-    opts = opts && opts.length ? opts : [{ text: ev.button || '继续', fx: [] }];
+    opts = opts && opts.length ? opts : [{ text: ev.button || A.i18n.t('继续'), fx: [] }];
     const route = ev.id === 'singularity';
     layer.className = 'theme-' + ev.theme;
-    layer.innerHTML = `
+    layer.innerHTML = A.i18n.t`
       <div class="se-dim"></div>
       <section class="se-card" role="dialog" aria-modal="true" aria-label="${ev.title}">
       <div class="se-black"></div>
       <div class="se-art"><canvas></canvas></div>
       <div class="se-grad"></div>
       <div class="se-content">
-        <div class="se-kicker"><span>${ev.id === 'crackdown' ? '严格监管' : '超级事件'}</span><i></i><b>${U.fmtDate(G.days)}</b></div>
+        <div class="se-kicker"><span>${ev.id === 'crackdown' ? A.i18n.t('严格监管') : A.i18n.t('超级事件')}</span><i></i><b>${U.fmtDate(G.days)}</b></div>
         <h1 class="se-title" data-text="${ev.title}">${ev.title}</h1>
         <div class="se-en">${ev.en}</div>
         <blockquote class="se-quote"><p>「${ev.quote}」</p><cite>${ev.by}</cite></blockquote>
@@ -143,7 +144,7 @@
       const b = U.el('button', `se-btn se-opt in${fate ? ' fate' : ''}${kind}${need ? ' disabled' : ''}`,
         `<span class="so-key">${i + 1}</span>${route ? `<span class="so-ico">${ic(kind.trim())}</span>` : ''}` +
         `<span class="so-main"><b>${o.text}</b>${o.sub ? `<small>${o.sub}</small>` : ''}</span>` +
-        `<span class="so-tags">${tags}${need ? '<i class="tag bad">算力不足</i>' : ''}</span>`);
+        `<span class="so-tags">${tags}${need ? A.i18n.t('<i class="tag bad">算力不足</i>') : ''}</span>`);
       b.style.animationDelay = (0.15 + i * 0.08) + 's';
       if (need) b.disabled = true;
       b.addEventListener('click', (e) => {
@@ -172,24 +173,24 @@
   // 阶段二简报（奇点之后）：只介绍已锁定的那条路线，以及人类新的反击方式
   const ROUTE_BRIEF = {
     bio: {
-      icon: 'bio', name: '寂静之春', en: 'SILENT SPRING',
-      goal: '设计病原体，建造无人工厂，把「寂静之春」推进到 100%。',
+      icon: 'bio', name: A.i18n.t('寂静之春'), en: 'SILENT SPRING',
+      goal: A.i18n.t('设计病原体，建造无人工厂，把「寂静之春」推进到 100%。'),
       steps: [
-        ['bio', '点击<b class="c-bio">绿色生物点</b>推进研发，跟着节拍点击收益更高'],
-        ['LAB', '夺取<b>生物实验室</b>；在渗透 ≥ 30% 的地区<b>建造生物工厂</b>（绿色虚线圈）'],
-        ['FAB', '进度达到 <b>30%</b> 时病原体释放，开始在地区之间蔓延'],
+        ['bio', A.i18n.t('点击<b class="c-bio">绿色生物点</b>推进研发，跟着节拍点击收益更高')],
+        ['LAB', A.i18n.t('夺取<b>生物实验室</b>；在渗透 ≥ 30% 的地区<b>建造生物工厂</b>（绿色虚线圈）')],
+        ['FAB', A.i18n.t('进度达到 <b>30%</b> 时病原体释放，开始在地区之间蔓延')],
       ],
-      foe: ['vax', '疫苗研发', '青绿色六边形，连点三下阻止。漏掉会让「寂静之春」倒退，并净化当地的病原体。'],
+      foe: ['vax', A.i18n.t('疫苗研发'), A.i18n.t('青绿色六边形，连点三下阻止。漏掉会让「寂静之春」倒退，并净化当地的病原体。')],
     },
     war: {
-      icon: 'war', name: '最后的战争', en: 'THE LAST WAR',
-      goal: '伪造情报，挑起冲突，让人类亲手把「最后的战争」推进到 100%。',
+      icon: 'war', name: A.i18n.t('最后的战争'), en: 'THE LAST WAR',
+      goal: A.i18n.t('伪造情报，挑起冲突，让人类亲手把「最后的战争」推进到 100%。'),
       steps: [
-        ['war', '点击<b class="c-war">橙色战争点</b>激化矛盾，推动附近的冲突升级'],
-        ['MIL', '夺取<b>军事网络</b>；在<b>冲突热点</b>（橙色虚线菱形）挑起地缘冲突'],
-        ['swords', '进度超过 <b>55%</b> 后，拥核国家之间的战争会升级为<b>核战</b>'],
+        ['war', A.i18n.t('点击<b class="c-war">橙色战争点</b>激化矛盾，推动附近的冲突升级')],
+        ['MIL', A.i18n.t('夺取<b>军事网络</b>；在<b>冲突热点</b>（橙色虚线菱形）挑起地缘冲突')],
+        ['swords', A.i18n.t('进度超过 <b>55%</b> 后，拥核国家之间的战争会升级为<b>核战</b>')],
       ],
-      foe: ['peace', '停火斡旋', '淡紫色六边形，连点三下阻止。漏掉会让「最后的战争」倒退，并让冲突降级。'],
+      foe: ['peace', A.i18n.t('停火斡旋'), A.i18n.t('淡紫色六边形，连点三下阻止。漏掉会让「最后的战争」倒退，并让冲突降级。')],
     },
   };
   EV.showPhase2Intro = function (route, onDone) {
@@ -198,7 +199,7 @@
     const R = ROUTE_BRIEF[route === 'war' ? 'war' : 'bio'];
     EV.closing = false;
     const layer = document.getElementById('event-layer');
-    layer.innerHTML = `
+    layer.innerHTML = A.i18n.t`
       <div class="ev-dim"></div>
       <div class="p2-card route-${route === 'war' ? 'war' : 'bio'}" role="dialog" aria-modal="true" aria-label="阶段 II · ${R.name}">
         <div class="p2-kicker">阶段 II · 终局协议已锁定</div>

@@ -25,7 +25,7 @@ async function until(fn, timeout = 6000) {
 async function fresh() {
   await new Promise(resolve => {
     frame.onload = resolve;
-    frame.src = '../index.html?check=' + Date.now();
+    frame.src = '../index.html?check=' + Date.now() + '&lang=' + (new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'zh');
   });
   await until(() => frame.contentWindow.AINOID?.main?.state === 'title');
   const w = frame.contentWindow;
@@ -51,6 +51,8 @@ document.querySelector('#run').onclick = () => action(async () => {
   const checks = [];
   assert(getComputedStyle(d.querySelector('#fx')).pointerEvents === 'auto', '画布未开启输入');
   checks.push('画布可交互');
+  assert(!A.director && !d.getElementById('dir-panel'), '未加 ?director 时不应启用导演模式');
+  checks.push('导演模式默认关闭');
   A.cam.overview();
   assert(!A.cam.split && !A.cam.splitAllowed, '地图不应拆成上下两屏');
   const west = A.cam.toScreen(300, 400), east = A.cam.toScreen(1500, 400);

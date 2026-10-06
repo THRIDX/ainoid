@@ -15,6 +15,7 @@ const OUT = path.join(ROOT, 'assets', 'js', 'data', 'world-data.js');
 // ---------- 读取地区定义 ----------
 const ctx = { window: {} };
 vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(path.join(ROOT, 'assets/js/i18n.js'), 'utf8'), ctx);
 vm.runInContext(fs.readFileSync(path.join(ROOT, 'assets/js/data/regions.js'), 'utf8'), ctx);
 const REGIONS = ctx.window.AINOID.REGIONS;
 const RIDX = Object.fromEntries(REGIONS.map((r, i) => [r.id, i]));
@@ -183,6 +184,65 @@ function locate(x, y) {
   return -1;
 }
 
+// ---------- 按中国标准地图修正 ----------
+// Natural Earth 按“实际控制线”画国界。地图要在国内平台公开展示，必须符合国家标准地图的表示，这里修正三处：
+// 1. 藏南：麦克马洪线以南、喜马拉雅山南麓（大致是阿鲁纳恰尔与阿萨姆的分界）以北、东至洛希特河谷的地区归入中国。
+//    雅鲁藏布江／洛希特河以南的蒂拉普、长朗一带不在其内。
+// 2. 南海诸岛、钓鱼岛、赤尾屿：岛礁小于点阵间距，单独补点。
+// 3. 南海断续线：前九段取自 1947 年《南海诸岛位置图》端点数据（地理学报 2016, 71(6): 914，表 1 第 3–11 段），
+//    第十段在台湾以东，按 2013 年版竖版地图取近似位置。
+const ZANGNAN_SOUTH = [ // 自西向东；首点在不丹境内，末点在缅甸境内，便于与原国界求交
+  [91.98, 26.97], [92.15, 26.93], [92.35, 26.96], [92.64, 27.0], [92.85, 26.96], [93.05, 26.93],
+  [93.35, 26.98], [93.6, 27.03], [93.85, 27.12], [94.05, 27.3], [94.3, 27.45], [94.5, 27.55],
+  [94.7, 27.64], [94.95, 27.78], [95.22, 27.92], [95.5, 27.97], [95.75, 28.0], [95.9, 27.88],
+  [96.1, 27.83], [96.36, 27.88], [96.55, 28.0], [96.8, 28.07], [97.02, 28.12], [97.45, 28.12],
+];
+const ZANGNAN = [...ZANGNAN_SOUTH, [97.7, 29.95], [91.3, 29.95], [91.3, 27.3]].map(([lon, lat]) => proj(lon, lat));
+const ZN_RING = Float64Array.from(ZANGNAN.flat());
+const inZangnan = (p) => inRing(ZN_RING, p[0], p[1]);
+const ISLANDS = [ // [经度, 纬度, 名称]
+  [116.72, 20.7, '东沙岛'],
+  [112.34, 16.83, '永兴岛'], [111.72, 16.45, '琛航岛'], [111.2, 15.78, '中建岛'],
+  [114.4, 15.9, '中沙群岛'], [117.76, 15.15, '黄岩岛'],
+  [114.28, 11.05, '中业岛'], [114.36, 10.38, '太平岛'], [112.89, 9.55, '永暑礁'], [115.54, 9.9, '美济礁'],
+  [111.92, 8.64, '南威岛'], [113.84, 7.38, '弹丸礁'], [113.25, 6.33, '南通礁'], [112.28, 3.97, '曾母暗沙'],
+  [123.47, 25.74, '钓鱼岛'], [124.56, 25.92, '赤尾屿'],
+];
+const DASHES = [ // 每段 [起点经度, 起点纬度, 终点经度, 终点纬度]
+  [110.0, 15.555, 110.812, 14.248], [110.755, 10.911, 109.779, 9.257], [108.778, 5.723, 109.594, 4.083],
+  [111.05, 3.505, 113.313, 4.485], [114.551, 5.86, 116.729, 8.395], [117.643, 9.632, 118.697, 11.527],
+  [119.246, 16.306, 119.519, 18.755], [119.876, 19.744, 121.423, 21.2], [121.948, 21.451, 122.612, 22.241],
+  [122.45, 23.3, 122.65, 24.55],
+];
+// 线段 p→q 上 test 结果改变的位置（二分）
+function crossing(p, q, test) {
+  let a = p, b = q;
+  const ta = test(a);
+  for (let i = 0; i < 32; i++) {
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    if (test(m) === ta) a = m; else b = m;
+  }
+  return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+}
+// 把折线切成若干段，每段整体在 test 内或整体在外，切点精确落在分界上
+function splitRuns(pts, test) {
+  const runs = [];
+  let state = test(pts[0]), cur = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    const s = test(pts[i]);
+    if (s !== state) {
+      const c = crossing(pts[i - 1], pts[i], test);
+      cur.push(c);
+      runs.push({ inside: state, pts: cur });
+      cur = [c];
+      state = s;
+    }
+    cur.push(pts[i]);
+  }
+  runs.push({ inside: state, pts: cur });
+  return runs;
+}
+
 // ---------- 可复现随机 & 噪声 ----------
 let seed = 20320314;
 const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -336,18 +396,42 @@ const cityPts = CITIES.map(([lon, lat, pop]) => {
 const S = 5.2;
 const RH = S * Math.sqrt(3) / 2;
 const dots = []; // {x,y,r,light}
+const taken = new Set();
+let zangnanDots = 0;
 for (let row = 0; ; row++) {
   const y = RH * (row + 0.5);
   if (y > H) break;
   for (let col = 0; ; col++) {
     const x = S * (col + 0.5 + (row & 1) * 0.5);
     if (x > W) break;
-    const r = locate(x, y);
+    let r = locate(x, y);
     if (r < 0) continue;
+    if (r === RIDX.IN && inZangnan([x, y])) { r = RIDX.CN; zangnanDots++; }
     dots.push({ x, y, r });
+    taken.add(row + ',' + col);
   }
 }
-console.log('陆地点数:', dots.length);
+// 岛礁吸附到最近的网格点，与其他陆地点保持同一点阵
+let islandDots = 0;
+for (const [lon, lat, name] of ISLANDS) {
+  const [ix, iy] = proj(lon, lat);
+  let best = null, bd = Infinity;
+  const row0 = Math.floor(iy / RH - 0.5);
+  for (let row = row0 - 1; row <= row0 + 2; row++) {
+    const col0 = Math.floor(ix / S - 0.5 - (row & 1) * 0.5);
+    for (let col = col0 - 1; col <= col0 + 2; col++) {
+      const x = S * (col + 0.5 + (row & 1) * 0.5), y = RH * (row + 0.5);
+      const d = Math.hypot(x - ix, y - iy);
+      if (d < bd) { bd = d; best = { row, col, x, y }; }
+    }
+  }
+  const key = best.row + ',' + best.col;
+  if (taken.has(key)) continue; // 同一网格点已有岛礁或陆地
+  taken.add(key);
+  dots.push({ x: best.x, y: best.y, r: RIDX.CN });
+  islandDots++;
+}
+console.log('陆地点数:', dots.length, ` 其中藏南 ${zangnanDots}、补绘岛礁 ${islandDots}`);
 
 // 灯光
 const regionBase = REGIONS.map((r) => 0.05 + 0.18 * r.conn * r.conn);
@@ -413,26 +497,10 @@ function simplify(pts, tol) { // Douglas-Peucker, pts: [[x,y],...]
 }
 
 const arcOut = [];     // Int16 数据
-const arcMeta = [];    // [a, b, start, count]
+const arcMeta = [];    // [a, b, start, count]；b = -1 海岸线，b = -2 南海断续线
 const adjacency = new Set();
 let coastCount = 0, borderCount = 0;
-for (const [k, users] of arcUse) {
-  let a = users[0].region, b = -1;
-  if (users.length >= 2) {
-    b = users[1].region;
-    if (a === b) continue; // 地区内部国界，不画
-    if (a > b) [a, b] = [b, a];
-    adjacency.add(a + ',' + b);
-    borderCount++;
-  } else coastCount++;
-  const ll = unwrap(arcsLL[k]);
-  const shift = shiftFor(ll);
-  const pts = ll.map(([lon, lat]) => proj(lon + shift, lat));
-  // 过滤极小的岛屿碎片
-  let len = 0;
-  for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-  if (b < 0 && len < 1.6) continue;
-  const sp = simplify(pts, 0.28);
+function pushArc(a, b, sp) {
   const start = arcOut.length / 2;
   let px = 0, py = 0;
   sp.forEach(([x, y], i) => {
@@ -442,7 +510,41 @@ for (const [k, users] of arcUse) {
   });
   arcMeta.push([a, b, start, sp.length]);
 }
-console.log(`海岸线弧 ${coastCount}  边界弧 ${borderCount}  输出点 ${arcOut.length / 2}`);
+function emitArc(regs, pts) {
+  let a = regs[0], b = -1;
+  if (regs.length >= 2) {
+    b = regs[1];
+    if (a === b) return; // 地区内部国界，不画
+    if (a > b) [a, b] = [b, a];
+    adjacency.add(a + ',' + b);
+    borderCount++;
+  } else coastCount++;
+  // 过滤极小的岛屿碎片
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  if (b < 0 && len < 1.6) return;
+  pushArc(a, b, simplify(pts, 0.28));
+}
+for (const [k, users] of arcUse) {
+  const regs = users.map((u) => u.region);
+  const ll = unwrap(arcsLL[k]);
+  const shift = shiftFor(ll);
+  const pts = ll.map(([lon, lat]) => proj(lon + shift, lat));
+  if (!regs.includes(RIDX.IN)) { emitArc(regs, pts); continue; }
+  // 印度的国界穿过藏南时切开：藏南内的部分归中国（麦克马洪线因此成为中国内部的线，不再绘制）
+  for (const run of splitRuns(pts, inZangnan)) {
+    emitArc(run.inside ? regs.map((g) => (g === RIDX.IN ? RIDX.CN : g)) : regs, run.pts);
+  }
+}
+// 藏南南缘成为中印边界：取 ZANGNAN_SOUTH 落在原印度多边形内的部分
+{
+  const inIndia = (p) => locate(p[0], p[1]) === RIDX.IN;
+  const runs = splitRuns(ZANGNAN_SOUTH.map(([lon, lat]) => proj(lon, lat)), inIndia).filter((r) => r.inside);
+  if (runs.length !== 1) throw new Error('藏南南缘应恰好一段落在印度境内，实际 ' + runs.length);
+  emitArc([RIDX.CN, RIDX.IN], runs[0].pts);
+}
+for (const [lon0, lat0, lon1, lat1] of DASHES) pushArc(RIDX.CN, -2, [proj(lon0, lat0), proj(lon1, lat1)]);
+console.log(`海岸线弧 ${coastCount}  边界弧 ${borderCount}  断续线 ${DASHES.length} 段  输出点 ${arcOut.length / 2}`);
 
 // ---------- 校验：hub 与设施是否落在所属地区 ----------
 const lookup = new Map();

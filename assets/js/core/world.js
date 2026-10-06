@@ -134,7 +134,7 @@
       pts[j * 2] = x; pts[j * 2 + 1] = y;
       if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
     }
-    world.arcs.push({ a, b, pts, bbox: [x0, y0, x1, y1], border: b >= 0 });
+    world.arcs.push({ a, b, pts, bbox: [x0, y0, x1, y1], border: b >= 0, claim: b === -2 }); // b = -2：南海断续线
   }
   world.regions.forEach((r) => { r.arcs = world.arcs.filter((arc) => arc.a === r.idx || arc.b === r.idx); });
 

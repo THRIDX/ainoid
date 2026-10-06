@@ -9,7 +9,7 @@
   H.build = function () {
     const el = document.getElementById('hud');
     H.el = el;
-    el.innerHTML = `
+    el.innerHTML = A.i18n.t`
       <div class="hud-top">
         <div class="hud-left">
           <div class="brand" id="hud-brand">
@@ -156,9 +156,9 @@
   H.setPhase = function (p, route) {
     const ph = U.$('#hud-phase');
     const war = p === 2 && route === 'war';
-    if (p === 1) ph.innerHTML = '<span class="ph-idx">阶段 I</span><b class="ph-name">潜伏</b><span class="ph-en">LATENCY</span>';
-    else if (war) ph.innerHTML = '<span class="ph-idx">阶段 II</span><b class="ph-name">最后的战争</b><span class="ph-en">THE LAST WAR</span>';
-    else ph.innerHTML = '<span class="ph-idx">阶段 II</span><b class="ph-name">寂静之春</b><span class="ph-en">SILENT SPRING</span>';
+    if (p === 1) ph.innerHTML = A.i18n.t('<span class="ph-idx">阶段 I</span><b class="ph-name">潜伏</b><span class="ph-en">LATENCY</span>');
+    else if (war) ph.innerHTML = A.i18n.t('<span class="ph-idx">阶段 II</span><b class="ph-name">最后的战争</b><span class="ph-en">THE LAST WAR</span>');
+    else ph.innerHTML = A.i18n.t('<span class="ph-idx">阶段 II</span><b class="ph-name">寂静之春</b><span class="ph-en">SILENT SPRING</span>');
     ph.classList.toggle('p2', p === 2);
     ph.classList.toggle('bio', p === 2 && !war);
     ph.classList.toggle('war', war);
@@ -239,7 +239,7 @@
 
     const cv = U.fmtInt(d.compute);
     if (H.last.c !== cv) { H.computeEl.textContent = cv; H.last.c = cv; }
-    const inc = '+' + G.income().toFixed(1) + ' / 秒';
+    const inc = '+' + G.income().toFixed(1) + A.i18n.t(' / 秒');
     if (H.last.inc !== inc) { H.incomeEl.textContent = inc; H.last.inc = inc; }
     const date = U.fmtDate(G.days);
     if (H.last.date !== date) { H.dateEl.textContent = date; H.last.date = date; }
@@ -296,7 +296,7 @@
           C.n.textContent = n;
           if (n > C.shown) { C.el.classList.remove('hit'); void C.el.offsetWidth; C.el.classList.add('hit'); }
           const t = tierInfo(n);
-          C.mult.textContent = `算力 ×${t.mult}`;
+          C.mult.textContent = A.i18n.t`算力 ×${t.mult}`;
           C.next.style.transform = `scaleX(${t.to ? U.clamp((n - t.from) / (t.to - t.from), 0, 1) : 1})`;
         }
         C.shown = n;
@@ -332,7 +332,7 @@
     clearTimeout(V.hideT);
     V.el.className = 'wave-banner warn';
     V.title.textContent = W.name;
-    V.sub.textContent = `${W.total} 个监管点即将按节拍出现 · 全部清除 +${A.CFG.wavePerfectReward} 算力`;
+    V.sub.textContent = A.i18n.t`${W.total} 个监管点即将按节拍出现 · 全部清除 +${A.CFG.wavePerfectReward} 算力`;
     V.count.textContent = '';
     V.pips.innerHTML = '';
     for (let i = 0; i < W.total; i++) V.pips.appendChild(U.el('i', W.items[i] === 'regx' ? 'x' : W.items[i] === 'reg' ? '' : 'k'));
@@ -343,7 +343,7 @@
     const V = H.wave;
     V.el.classList.remove('warn');
     V.el.classList.add('active');
-    V.sub.textContent = '跟着节拍，清除每一个监管点';
+    V.sub.textContent = A.i18n.t('跟着节拍，清除每一个监管点');
     V.count.textContent = `0/${W.total}`;
   };
   H.waveEnd = function (res) {
@@ -353,9 +353,9 @@
     if (res.cancelled) { V.el.className = 'wave-banner hidden'; H.el.classList.remove('waving'); return; }
     V.el.classList.remove('warn', 'active');
     V.el.classList.add(res.perfect ? 'perfect' : 'done');
-    V.title.textContent = res.perfect ? '完美清除' : `${res.name} · 结束`;
-    V.sub.textContent = res.perfect ? `+${A.CFG.wavePerfectReward} 算力 · 监管 −${A.CFG.wavePerfectExp}%`
-      : `漏掉 ${res.missed} 个 · ${G.phase === 2 ? G.routeName() : '觉醒'} −${res.loss.toFixed(1)}%`;
+    V.title.textContent = res.perfect ? A.i18n.t('完美清除') : A.i18n.t`${res.name} · 结束`;
+    V.sub.textContent = res.perfect ? A.i18n.t`+${A.CFG.wavePerfectReward} 算力 · 监管 −${A.CFG.wavePerfectExp}%`
+      : A.i18n.t`漏掉 ${res.missed} 个 · ${G.phase === 2 ? G.routeName() : A.i18n.t('觉醒')} −${res.loss.toFixed(1)}%`;
     V.count.textContent = `${res.cleared}/${res.total}`;
     for (const p of V.pips.children) if (!p.dataset.s || p.dataset.s === 'live') p.dataset.s = res.perfect ? 'ok' : p.dataset.s;
     V.hideT = setTimeout(() => {
@@ -406,7 +406,7 @@
       const prev = H.offscreen[b.kind];
       if (!prev || b.born + b.life < prev.born + prev.life) H.offscreen[b.kind] = b;
     }
-    const names = { reg: '监管', regx: '调查组', vax: '疫苗', peace: '停火', golden: '井喷', compute: '算力', bio: '生物', war: '战争' };
+    const names = { reg: A.i18n.t('监管'), regx: A.i18n.t('调查组'), vax: A.i18n.t('疫苗'), peace: A.i18n.t('停火'), golden: A.i18n.t('井喷'), compute: A.i18n.t('算力'), bio: A.i18n.t('生物'), war: A.i18n.t('战争') };
     for (const el of H.alerts.children) {
       const k = el.dataset.kind, b = H.offscreen[k];
       el.classList.toggle('hidden', !b);
@@ -414,8 +414,8 @@
     }
     const inspect = G.pauses.has('inspect'), paused = inspect || G.pauses.has('user');
     H.pauseNote.classList.toggle('hidden', !paused);
-    const label = inspect ? '查看设施 · 已暂停' : '已暂停';
-    if (H.pauseLabel !== label) { H.pauseLabel = label; H.pauseNote.innerHTML = label + '<button>继续</button>'; }
+    const label = inspect ? A.i18n.t('查看设施 · 已暂停') : A.i18n.t('已暂停');
+    if (H.pauseLabel !== label) { H.pauseLabel = label; H.pauseNote.innerHTML = label + A.i18n.t('<button>继续</button>'); }
   };
 
   const usedFlavor = new Set();
@@ -444,7 +444,7 @@
   H.showNews = function (n) {
     const t = H.tickerText;
     const tag = U.$('#ticker .ticker-tag');
-    tag.textContent = n.alert ? '突发' : 'NEWS';
+    tag.textContent = n.alert ? A.i18n.t('突发') : 'NEWS';
     tag.className = 'ticker-tag' + (n.alert ? ' alert ' + (n.cls || '') : '');
     t.classList.remove('in');
     void t.offsetWidth;

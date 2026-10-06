@@ -66,9 +66,15 @@
   // 数字格式
   U.fmtInt = (n) => Math.floor(n).toLocaleString('en-US');
   U.fmtPct = (v, d = 0) => v.toFixed(d) + '%';
-  U.fmtPop = (m) => { // 百万 -> 中文
-    if (m >= 100) return (m / 100).toFixed(m >= 1000 ? 1 : 2).replace(/\.?0+$/, '') + ' 亿';
-    if (m >= 1) return Math.round(m * 100) + ' 万';
+  U.fmtPop = (m) => { // Input is millions; format in the selected locale.
+    if (A.i18n.lang === 'en') {
+      if (m >= 1000) return (m / 1000).toFixed(2).replace(/\.?0+$/, '') + 'B';
+      if (m >= 1) return m.toFixed(1).replace(/\.0$/, '') + 'M';
+      if (m >= 0.01) return (m * 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return Math.max(m > 0 ? 1 : 0, Math.round(m * 1e6)).toLocaleString('en-US');
+    }
+    if (m >= 100) return (m / 100).toFixed(m >= 1000 ? 1 : 2).replace(/\.?0+$/, '') + A.i18n.t(' 亿');
+    if (m >= 1) return Math.round(m * 100) + A.i18n.t(' 万');
     if (m > 0) return Math.max(1, Math.round(m * 1e6)).toLocaleString('en-US');
     return '0';
   };
@@ -81,7 +87,7 @@
     return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
   };
   U.fmtDate = (days) => { const t = U.dateOf(days); return `${t.y}.${U.pad2(t.m)}.${U.pad2(t.d)}`; };
-  U.fmtDateCN = (days) => { const t = U.dateOf(days); return `${t.y}年${t.m}月${t.d}日`; };
+  U.fmtDateCN = (days) => { const t = U.dateOf(days); if (A.i18n.lang === 'en') return new Date(START + Math.floor(days) * 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }); return A.i18n.t`${t.y}年${t.m}月${t.d}日`; };
 
   // 颜色
   U.hexToRgb = (hex) => {

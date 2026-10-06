@@ -62,7 +62,7 @@
       ctx.save();
       if (v.clip) { ctx.beginPath(); ctx.rect(v.clip[0], v.clip[1], v.clip[2], v.clip[3]); ctx.clip(); }
       // 海岸线
-      tracePaths(ctx, w.arcs, (a) => !a.border, v);
+      tracePaths(ctx, w.arcs, (a) => !a.border && !a.claim, v);
       ctx.strokeStyle = 'rgba(86,176,196,0.34)';
       ctx.lineWidth = U.clamp(0.55 + 0.18 * z, 0.55, 1.3);
       ctx.stroke();
@@ -74,6 +74,12 @@
       ctx.lineWidth = U.clamp(0.6 + 0.15 * z, 0.6, 1.2);
       ctx.stroke();
       ctx.setLineDash([]);
+
+      // 南海断续线：每一段本身就是一小截实线
+      tracePaths(ctx, w.arcs, (a) => a.claim, v);
+      ctx.strokeStyle = 'rgba(120,200,220,0.42)';
+      ctx.lineWidth = U.clamp(0.7 + 0.18 * z, 0.7, 1.4);
+      ctx.stroke();
 
       // 悬停轮廓
       if (L.hover >= 0 && L.hover !== L.selected) {
@@ -135,7 +141,7 @@
         ctx.fillRect(x - tw / 2 - 5, y - fs / 2 - 3, tw + 10, fs + 6);
         ctx.fillStyle = `rgba(214,236,242,${alpha})`;
         ctx.fillText(r.name, x, y);
-        if (active || z > 2.4) {
+        if (A.i18n.lang !== 'en' && (active || z > 2.4)) {
           ctx.font = `500 8.5px Bahnschrift,"DIN Alternate","Roboto Condensed",sans-serif`;
           ctx.fillStyle = `rgba(140,190,205,${alpha * 0.8})`;
           ctx.fillText(r.en.split('').join(String.fromCharCode(8202)), x, y + fs / 2 + 8);

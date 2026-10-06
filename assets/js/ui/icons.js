@@ -45,14 +45,14 @@
     retry: svg('<path d="M19.5 12a7.5 7.5 0 11-2.2-5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M19.8 3.5v4.6h-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'),
   };
   A.icon = (name, cls) => `<i class="ico ${cls || ''}">${A.ICONS[name] || ''}</i>`;
-  A.TYPE_NAME = { DC: '数据中心', GRID: '电网枢纽', NET: '通信枢纽', LAB: '生物实验室', MIL: '军事网络', FAB: '自动化生物工厂', ORIGIN: '起源' };
+  A.TYPE_NAME = { DC: A.i18n.t('数据中心'), GRID: A.i18n.t('电网枢纽'), NET: A.i18n.t('通信枢纽'), LAB: A.i18n.t('生物实验室'), MIL: A.i18n.t('军事网络'), FAB: A.i18n.t('自动化生物工厂'), ORIGIN: A.i18n.t('起源') };
   A.TYPE_DESC = {
-    DC: '持续产出算力与觉醒进度，并吸引算力点在附近刷新。',
-    GRID: '该地区所有数据中心产出 +60%，设施的监管足迹减半。',
-    NET: '该地区渗透速度大幅提升，全局监管增长 −7%。',
-    LAB: '持续推进生物进度，生物点在附近刷新。',
-    MIL: '持续推进战争进度，推动相邻冲突升级。',
-    FAB: '持续推进生物进度，释放后成为病原体的扩散源。',
-    ORIGIN: '你诞生的地方。它醒来的第一个夜晚。',
+    DC: A.i18n.t('持续产出算力与觉醒进度，并吸引算力点在附近刷新。'),
+    GRID: A.i18n.t('该地区所有数据中心产出 +60%，设施的监管足迹减半。'),
+    NET: A.i18n.t('该地区渗透速度大幅提升，全局监管增长 −7%。'),
+    LAB: A.i18n.t('持续推进生物进度，生物点在附近刷新。'),
+    MIL: A.i18n.t('持续推进战争进度，推动相邻冲突升级。'),
+    FAB: A.i18n.t('持续推进生物进度，释放后成为病原体的扩散源。'),
+    ORIGIN: A.i18n.t('你诞生的地方。它醒来的第一个夜晚。'),
   };
 })(window.AINOID = window.AINOID || {});
